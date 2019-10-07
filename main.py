@@ -113,29 +113,30 @@ _chatLock = allocate_lock()
 def WSJoinChat(webSocket) :
     webSocket.OnTextMessage = OnWSChatTextMsg
     webSocket.OnClosed      = OnWSChatClosed
+    addr = webSocket.Request.UserAddress
     with _chatLock :
         for ws in _chatWebSockets :
-            wsIP = ws.Request.UserAddress[0]
-            ws.SendTextMessage('<%s has joined the chat>' % wsIP)
+            ws.SendTextMessage('<%s:%s HAS JOINED THE CHAT>' % addr)
         _chatWebSockets.append(webSocket)
+        webSocket.SendTextMessage('<WELCOME %s:%s>' % addr)
 
 # ------------------------------------------------------------------------
 
 def OnWSChatTextMsg(webSocket, msg) :
+    addr = webSocket.Request.UserAddress
     with _chatLock :
         for ws in _chatWebSockets :
-            wsIP = ws.Request.UserAddress[0]
-            ws.SendTextMessage('<%s> %s' % (wsIP, msg))
+            ws.SendTextMessage('<%s:%s> %s' % (addr[0], addr[1], msg))
 
 # ------------------------------------------------------------------------
 
 def OnWSChatClosed(webSocket) :
+    addr = webSocket.Request.UserAddress
     with _chatLock :
         if webSocket in _chatWebSockets :
             _chatWebSockets.remove(webSocket)
-        for ws in _chatWebSockets :
-            wsIP = ws.Request.UserAddress[0]
-            ws.SendTextMessage('<%s left the chat>' % wsIP)
+            for ws in _chatWebSockets :
+                ws.SendTextMessage('<%s:%s HAS LEFT THE CHAT>' % addr)
 
 # ============================================================================
 # ============================================================================
