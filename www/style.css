@@ -1,0 +1,35 @@
+html, body {
+	margin: 0;
+	padding: 0;
+}
+body {
+	margin: 30px;
+	background-color: white; 
+	font-family: "Trebuchet MS", Verdana, sans-serif; 
+	letter-spacing: 2px;
+}
+h1 {
+	color: #D35F8D; 
+	text-align: center;
+}
+h2 {
+	color: #5FA3D3; 
+	padding-left: 15px;
+}
+p, ul, li, td {
+	color: black; 
+}
+a:link {
+	color: green;
+	text-decoration: underline;
+}
+a:visited {
+	color: gray;
+}
+a:hover {
+	color: red;
+	text-decoration: none;
+}
+a:active, a:focus {
+	color: red;
+}
