@@ -197,7 +197,7 @@ class HttpResponse :
                             code,
                             reason ),
                         self._mws2.DEBUG )
-        self.SetHeader('Server', 'MicroWebSrv by JC`zic')
+        self.SetHeader('Server', 'MicroWebSrv2 by JC`zic')
         hdr = ''
         for n in self._headers :
             hdr += '%s: %s\r\n' % (n, self._headers[n])
