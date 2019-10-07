@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+        <meta charset="utf-8" />
+        <title>MicroWebSrv2 - WS Chat</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+
+    <style>
+        .chat-zone {
+            height : 350px;
+            padding: 10px;
+            background-color: #304050;
+            font: 15px monospace;
+            color: white;
+            overflow: scroll;
+        }
+        #input-chat {
+            height: 40px;
+            border: 0px;
+            padding: 0px 10px;
+            outline: none;
+            border-top: 1px solid white;
+            background-color: #304050;
+            font: 15px monospace;
+            letter-spacing: 2px;
+            color: white;
+        }
+        input {
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            width: 100%;
+            margin-top: 3px;
+            border: 2px solid #5FA3D3;
+        }
+    </style>
+
+    <script language="javascript">
+
+        function init()
+        {
+            var scheme
+            if (window.location.protocol == 'https:')
+                scheme = 'wss:';
+            else
+                scheme = 'ws:';
+            var wsUri           = scheme + '//' + window.location.hostname + '/wschat';
+            writeLineToChat("Connection to " + wsUri + "...")
+            websocket           = new WebSocket(wsUri);
+            websocket.onopen    = function(evt) { onOpen    (evt) };
+            websocket.onclose   = function(evt) { onClose   (evt) };
+            websocket.onmessage = function(evt) { onMessage (evt) };
+            websocket.onerror   = function(evt) { onError   (evt) };
+            getElmById("input-chat").addEventListener("keyup", onChatLine);
+            getElmById("input-chat").focus()
+        }
+
+        function getElmById(id) {
+            return document.getElementById(id);
+        }
+
+        function writeLineToChat(line)
+        {
+            var elm = getElmById('chat');
+            if (elm)
+            {
+                var lineElm = document.createElement('div');
+                if (line) {
+                    var time = new Date().toLocaleTimeString();
+                    lineElm.innerText = "[" + time + "] " + line;
+                }
+                else
+                    lineElm.innerHTML = '&nbsp;';
+                elm.appendChild(lineElm);
+                elm.scrollTop = elm.scrollHeight;
+            }
+        }
+
+        function onOpen(evt)
+        {
+            writeLineToChat("[CONNECTED]")
+        }
+
+        function onClose(evt)
+        {
+            writeLineToChat("[CONNECTION CLOSED]")
+        }
+
+        function onMessage(evt)
+        {
+            writeLineToChat(evt.data)
+        }
+
+        function onError(evt)
+        {
+            writeLineToChat("[CONNECTION ERROR]")
+        }
+
+        function onChatLine(e) {
+            key = (e.key || e.keyCode);
+            if (key === 13 || key.toUpperCase() === "ENTER") {
+                input       = getElmById("input-chat");
+                line        = input.value.trim();
+                input.value = "";
+                if (line.length > 0)
+                    websocket.send(line);
+            }
+        }
+
+        window.addEventListener("load", init, false);
+
+    </script>
+
+    <body>
+      <h1>MicroWebSrv2 - WS Chat</h1>
+      <div id="chat" class="chat-zone">
+      </div>
+      <input id="input-chat" type="text" />
+    </body>
+
+</html>
