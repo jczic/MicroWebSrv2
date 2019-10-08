@@ -150,8 +150,8 @@ print()
 xasPool = XAsyncSocketsPool()
 mws2    = MicroWebSrv2()
 
-mws2.EnableSSL( certFile = 'openhc2.crt',
-                keyFile  = 'openhc2.key' )
+mws2.EnableSSL( certFile = 'SSL-Cert/openhc2.crt',
+                keyFile  = 'SSL-Cert/openhc2.key' )
 mws2.NotFoundURL = '/'
 
 print('Starts MicroWebSrv2')

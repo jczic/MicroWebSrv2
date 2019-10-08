@@ -91,7 +91,7 @@ class HttpRequest :
             if not self.IsUpgrade :
                 if not self._processRequestRoutes() :
                     if self._method == 'GET' or self._method == 'HEAD' :
-                        filename = self._mws2._physPathFromURLPath(self._path)
+                        filename = self._mws2.ResolvePhysicalPath(self._path)
                         if filename :
                             ct = self._mws2.GetMimeTypeFromFilename(filename)
                             if ct :

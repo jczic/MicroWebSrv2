@@ -192,7 +192,7 @@ class MicroWebSrv2 :
     def Log(self, msg, msgType) :
         if self._onLogging :
             try :
-                self._onLogging(str(msg), msgType)
+                self._onLogging(self, str(msg), msgType)
                 return
             except Exception as ex :
                 msgType = MicroWebSrv2.ERROR
@@ -200,6 +200,26 @@ class MicroWebSrv2 :
         t = MicroWebSrv2.MSG_TYPE_STR.get(msgType, None)
         if t :
             print('MWS2-%s> %s' % (t, msg))
+
+    # ------------------------------------------------------------------------
+
+    def ResolvePhysicalPath(self, urlPath) :
+        if not isinstance(urlPath, str) or len(urlPath) == 0 :
+            raise ValueError('"urlPath" must be a not empty string.')
+        physPath = self._rootPath + urlPath.replace('..', '/')
+        endSlash = physPath.endswith('/')
+        physDir  = physPath + ('/' if not endSlash else '')
+        if MicroWebSrv2._fileExists(physDir) :
+            for filename in MicroWebSrv2._DEFAULT_PAGES :
+                p = physDir + filename
+                if MicroWebSrv2._fileExists(p) :
+                    return p
+            return physDir
+        elif endSlash :
+            return None
+        if MicroWebSrv2._fileExists(physPath) :
+            return physPath
+        return None
 
     # ------------------------------------------------------------------------
 
@@ -220,20 +240,6 @@ class MicroWebSrv2 :
 
     def _onSrvClosed(self, xAsyncTCPServer, closedReason) :
         self.Log('Server %s:%s closed.' % self._bindAddr, MicroWebSrv2.INFO)
-
-    # ------------------------------------------------------------------------
-
-    def _physPathFromURLPath(self, urlPath) :
-        if urlPath == '/' :
-            for filename in MicroWebSrv2._DEFAULT_PAGES :
-                physPath = self._rootPath + '/' + filename
-                if MicroWebSrv2._fileExists(physPath) :
-                    return physPath
-        else :
-            physPath = self._rootPath + urlPath.replace('../', '/')
-            if MicroWebSrv2._fileExists(physPath) :
-                return physPath
-        return None
 
     # ------------------------------------------------------------------------
 
