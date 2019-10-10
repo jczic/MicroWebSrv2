@@ -4,13 +4,10 @@ The MIT License (MIT)
 Copyright © 2019 Jean-Christophe Bos & HC² (www.hc2.fr)
 """
 
-try :
-    from XAsyncSockets import XAsyncTCPServer, XBufferSlots
-except :
-    raise Exception('MicroWebSrv2 needs XAsyncSockets lib.')
-
-from   .httpRequest import HttpRequest
-from   os           import stat
+from .             import *
+from .httpRequest  import HttpRequest
+from os            import stat
+from _thread       import stack_size
 
 # ============================================================================
 # ===( MicroWebSrv2 )=========================================================
@@ -93,14 +90,15 @@ class MicroWebSrv2 :
         self._notFoundURL   = None
         self._onLogging     = None
         self._xasSrv        = None
+        self._xasPool       = None
         self.SetNormalConfig()
 
     # ------------------------------------------------------------------------
 
     @staticmethod
-    def _fileExists(filename) :
+    def _physPathExists(physPath) :
         try :
-            stat(filename)
+            stat(physPath)
         except :
             return False
         return True
@@ -160,7 +158,9 @@ class MicroWebSrv2 :
 
     # ------------------------------------------------------------------------
 
-    def Start(self, asyncSocketsPool) :
+    def StartInPool(self, asyncSocketsPool) :
+        if not isinstance(asyncSocketsPool, XAsyncSocketsPool) :
+            raise ValueError('"asyncSocketsPool" must be a XAsyncSocketsPool class.')
         if self._xasSrv :
             raise MicroWebSrv2Exception('Server is already running.')
         try :
@@ -182,10 +182,44 @@ class MicroWebSrv2 :
 
     # ------------------------------------------------------------------------
 
+    def StartManaged(self, parllProcCount=1, procStackSize=0) :
+        if not isinstance(parllProcCount, int) or parllProcCount < 0 :
+            raise ValueError('"parllProcCount" must be a positive integer or zero.')
+        if not isinstance(procStackSize, int) or procStackSize < 0 :
+            raise ValueError('"procStackSize" must be a positive integer or zero.')
+        if self._xasSrv :
+            raise MicroWebSrv2Exception('Server is already running.')
+        try :
+            saveStackSize = stack_size(procStackSize)
+        except Exception as ex :
+            raise ValueError('"procStackSize" of %s is not correct (%s).' % (procStackSize, ex))
+        self._xasPool = XAsyncSocketsPool()
+        try :
+            self.StartInPool(self._xasPool)
+            try :
+                self.Log('Starts the managed pool to wait for I/O events.', MicroWebSrv2.INFO)
+                self._xasPool.AsyncWaitEvents(threadsCount=parllProcCount)
+            except :
+                raise MicroWebSrv2Exception('Not enough memory to start %s parallel processes.' % parllProcCount)
+        except Exception as ex :
+            self.Stop()
+            raise ex
+        finally :
+            try :
+                stack_size(saveStackSize)
+            except :
+                pass
+
+    # ------------------------------------------------------------------------
+
     def Stop(self) :
         if self._xasSrv :
             self._xasSrv.Close()
             self._xasSrv = None
+        if self._xasPool :
+            self.Log('Stops the managed pool.', MicroWebSrv2.INFO)
+            self._xasPool.StopWaitEvents()
+            self._xasPool = None
 
     # ------------------------------------------------------------------------
 
@@ -209,15 +243,15 @@ class MicroWebSrv2 :
         physPath = self._rootPath + urlPath.replace('..', '/')
         endSlash = physPath.endswith('/')
         physDir  = physPath + ('/' if not endSlash else '')
-        if MicroWebSrv2._fileExists(physDir) :
+        if MicroWebSrv2._physPathExists(physDir) :
             for filename in MicroWebSrv2._DEFAULT_PAGES :
                 p = physDir + filename
-                if MicroWebSrv2._fileExists(p) :
+                if MicroWebSrv2._physPathExists(p) :
                     return p
             return physDir
         elif endSlash :
             return None
-        if MicroWebSrv2._fileExists(physPath) :
+        if MicroWebSrv2._physPathExists(physPath) :
             return physPath
         return None
 

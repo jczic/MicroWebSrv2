@@ -4,10 +4,9 @@ The MIT License (MIT)
 Copyright © 2019 Jean-Christophe Bos & HC² (www.hc2.fr)
 """
 
-from   .webRoute     import ResolveRoute
-from   .httpResponse import HttpResponse
-from   .urlUtils     import UrlUtils
-from   binascii      import a2b_base64
+from   .              import *
+from   .httpResponse  import HttpResponse
+from   binascii       import a2b_base64
 import json
 
 # ============================================================================

@@ -4,8 +4,7 @@ The MIT License (MIT)
 Copyright © 2019 Jean-Christophe Bos & HC² (www.hc2.fr)
 """
 
-from   .urlUtils    import UrlUtils
-from   os           import stat
+from   os   import stat
 import json
 
 # ============================================================================

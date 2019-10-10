@@ -1,7 +1,6 @@
 
 
 from MicroWebSrv2  import *
-from XAsyncSockets import XAsyncSocketsPool
 from time          import sleep
 from _thread       import allocate_lock
 
@@ -142,33 +141,23 @@ def OnWSChatClosed(webSocket) :
 # ============================================================================
 # ============================================================================
 
+print()
+
 wsMod = MicroWebSrv2.LoadModule('WebSockets')
 wsMod.OnWebSocketAccepted = OnWebSocketAccepted
 
-print()
-
-xasPool = XAsyncSocketsPool()
-mws2    = MicroWebSrv2()
-
-mws2.EnableSSL( certFile = 'SSL-Cert/openhc2.crt',
-                keyFile  = 'SSL-Cert/openhc2.key' )
+mws2 = MicroWebSrv2()
+#mws2.EnableSSL( certFile = 'SSL-Cert/openhc2.crt',
+#                keyFile  = 'SSL-Cert/openhc2.key' )
 mws2.NotFoundURL = '/'
-
-print('Starts MicroWebSrv2')
-mws2.Start(xasPool)
-
-print('Starts pool processing')
-xasPool.AsyncWaitEvents(threadsCount=1)
+mws2.StartManaged()
 
 try :
     while True :
         sleep(60)
 except KeyboardInterrupt :
     print()
-    print('Stops MicroWebSrv2')
     mws2.Stop()
-    print('Terminates pool processing...')
-    xasPool.StopWaitEvents()
     print('Bye')
     print()
 
