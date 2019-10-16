@@ -170,8 +170,8 @@ class HttpRequest :
 
     # ------------------------------------------------------------------------
 
-    def GetPostedFormData(self) :
-        formData = { }
+    def GetPostedURLEncodedForm(self) :
+        res = { }
         if self.ContentType.lower() == 'application/x-www-form-urlencoded' :
             try :
                 elements = bytes(self._content).decode('UTF-8').split('&')
@@ -179,10 +179,10 @@ class HttpRequest :
                     p = s.split('=', 1)
                     if len(p) > 0 :
                         v = (UrlUtils.UnquotePlus(p[1]) if len(p) > 1 else '')
-                        formData[UrlUtils.UnquotePlus(p[0])] = v
+                        res[UrlUtils.UnquotePlus(p[0])] = v
             except :
                 pass
-        return formData
+        return res
 
     # ------------------------------------------------------------------------
 
