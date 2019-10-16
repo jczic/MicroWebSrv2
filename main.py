@@ -41,10 +41,10 @@ def RequestTestPost(microWebSrv2, request) :
 
 @WebRoute(POST, '/test-post', name='TestPost2/2')
 def RequestTestPost(microWebSrv2, request) :
-    formData  = request.GetPostedFormData()
+    data = request.GetPostedURLEncodedForm()
     try :
-        firstname = formData['firstname']
-        lastname  = formData['lastname']
+        firstname = data['firstname']
+        lastname  = data['lastname']
     except :
         request.Response.ReturnBadRequest()
         return
