@@ -198,7 +198,9 @@ class HttpRequest :
     # ------------------------------------------------------------------------
 
     def GetHeader(self, name) :
-        return self._headers.get(str(name).lower(), '')
+        if not isinstance(name, str) or len(name) == 0 :
+            raise ValueError('"name" must be a not empty string.')
+        return self._headers.get(name.lower(), '')
 
     # ------------------------------------------------------------------------
 

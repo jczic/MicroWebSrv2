@@ -126,6 +126,8 @@ class MicroWebSrv2 :
 
     @staticmethod
     def HTMLEscape(s) :
+        if not isinstance(s, str) :
+            raise ValueError('"s" must be a string.')
         return ''.join(MicroWebSrv2._HTML_ESCAPE_CHARS.get(c, c) for c in s)
 
     # ------------------------------------------------------------------------
@@ -317,7 +319,7 @@ class MicroWebSrv2 :
 
     # ------------------------------------------------------------------------    
 
-    def SetEmbbededConfig(self) :
+    def SetEmbeddedConfig(self) :
         self._validateChangeConf()
         self._backlog       = 8
         self._slotsCount    = 16

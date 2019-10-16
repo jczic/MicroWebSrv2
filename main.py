@@ -152,6 +152,7 @@ mws2 = MicroWebSrv2()
 mws2.NotFoundURL = '/'
 mws2.StartManaged()
 
+# Main program loop until keyboard interrupt,
 try :
     while True :
         sleep(60)

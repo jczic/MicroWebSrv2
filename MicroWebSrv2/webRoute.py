@@ -27,7 +27,7 @@ def WebRoute(method=None, routePath=None, name=None) :
 # ===( RegisterResult )=======================================================
 # ============================================================================
 
-def RegisterRoute(handler, method, routePath, name) :
+def RegisterRoute(handler, method, routePath, name=None) :
     if not hasattr(handler, '__call__') :
         raise ValueError('"handler" must be a function.')
     if not isinstance(method, str) or len(method) == 0 :

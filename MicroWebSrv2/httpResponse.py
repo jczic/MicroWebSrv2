@@ -126,7 +126,11 @@ class HttpResponse :
     # ------------------------------------------------------------------------
 
     def SetHeader(self, name, value) :
-        self._headers[str(name)] = str(value)
+        if not isinstance(name, str) or len(name) == 0 :
+            raise ValueError('"name" must be a not empty string.')
+        if value is None :
+            raise ValueError('"value" cannot be None.')
+        self._headers[name] = str(value)
 
     # ------------------------------------------------------------------------
 
@@ -206,8 +210,6 @@ class HttpResponse :
     # ------------------------------------------------------------------------
 
     def _makeResponseHdr(self, code) :
-        if not isinstance(code, int) :
-            code = 200
         if code >= 200 and code < 300 :
             self._keepAlive = self._request.IsKeepAlive
         else :
@@ -249,6 +251,8 @@ class HttpResponse :
     # ------------------------------------------------------------------------
 
     def ReturnStream(self, code, stream) :
+        if not isinstance(code, int) or code <= 0 :
+            raise ValueError('"code" must be a positive integer.')
         if not hasattr(stream, 'readinto') or not hasattr(stream, 'close') :
             raise ValueError('"stream" must be a readable buffer protocol object.')
         if self._hdrSent :
@@ -280,14 +284,14 @@ class HttpResponse :
     # ------------------------------------------------------------------------
 
     def Return(self, code, content=None) :
+        if not isinstance(code, int) or code <= 0 :
+            raise ValueError('"code" must be a positive integer.')
         if self._hdrSent :
             self._mws2.Log( 'Response headers already sent for request "%s".'
                             % self._request._path,
                             self._mws2.WARNING )
             return
         if not content :
-            if not isinstance(code, int) :
-                code = 200
             respCode          = self._RESPONSE_CODES.get(code, ('Unknown reason', ''))
             self._contentType = 'text/html'
             content           = self._CODE_CONTENT_TMPL % { 'code'    : code,
@@ -303,13 +307,15 @@ class HttpResponse :
         self._contentLength = len(content)
         data = self._makeResponseHdr(code)
         if self._request._method != 'HEAD' :
-            data += content
+            data += bytes(content)
         self._xasCli.AsyncSendData(data, onDataSent=self._onDataSent)
         self._hdrSent = True
 
     # ------------------------------------------------------------------------
 
     def ReturnJSON(self, code, obj) :
+        if not isinstance(code, int) or code <= 0 :
+            raise ValueError('"code" must be a positive integer.')
         self._contentType = 'application/json'
         try :
             content = json.dumps(obj)
