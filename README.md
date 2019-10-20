@@ -4,6 +4,8 @@
 ![Python](https://img.shields.io/badge/python-Ok-green.svg)
 ![License](https://img.shields.io/github/license/jczic/microwebsrv2?color=yellow)
 
+<br />
+
 ```vhdl
                 _               __    __     _     __            ____  
       _ __ ___ (_) ___ _ __ ___/ / /\ \ \___| |__ / _\_ ____   _|___ \ 
@@ -14,15 +16,21 @@
 
 ```
 
+<br />
+
 _**microWebSrv2 is the new powerful embedded Web Server for MicroPython and CPython that supports routes handlers and modules like WebSockets.**_
 
 _**Fully asynchronous, its connections and memory management are very optimized and really fast.**_
 
 _**Mostly used on Pycom WiPy, ESP32, STM32 on Pyboard, ... Robust and efficient!** (see [Features](#features))_
 
-### [Download Zip](https://github.com/jczic/MicroWebSrv/archive/master.zip)
+### :small_blue_diamond: [Download Zip](https://github.com/jczic/MicroWebSrv/archive/master.zip)
+
+<br />
 
 ---
+
+<br />
 
 # :bookmark_tabs: &nbsp;Table of contents
 
