@@ -18,7 +18,7 @@
 
 <br />
 
-**MicroWebSrv2** is the new powerful embedded Web Server for **MicroPython** and **CPython** that supports **route handlers**, modules like **WebSockets** and really a **lot of simultaneous requests**.
+**MicroWebSrv2** is the new powerful embedded Web Server for **MicroPython** and **CPython** that supports **route handlers**, modules like **WebSockets** and a **lot of simultaneous requests** (in thousands!).
 
 **Fully asynchronous**, its connections and memory management are **very optimized** and **truly fast**.
 
