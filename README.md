@@ -18,11 +18,11 @@
 
 <br />
 
-**microWebSrv2 is the new powerful embedded Web Server for MicroPython and CPython that supports routes handlers and modules like WebSockets.**
+**MicroWebSrv2** is the new powerful embedded Web Server for **MicroPython** and **CPython** that supports **route handlers**, modules like **WebSockets** and really a **lot of simultaneous requests**.
 
-**Fully asynchronous, its connections and memory management are very optimized and really fast.**
+**Fully asynchronous**, its connections and memory management are **very optimized** and **truly fast**.
 
-**Mostly used on Pycom WiPy, ESP32, STM32 on Pyboard, ... Robust and efficient!** (see [Features](#features))
+Mostly used on **Pycom WiPy**, **ESP32**, **STM32** on **Pyboard**, ... **Robust** and **efficient**! (see [Features](#features))
 
 #### :small_orange_diamond: [Download last release (Zip)](https://github.com/jczic/MicroWebSrv/archive/master.zip)
 
