@@ -143,7 +143,10 @@ def OnWSChatClosed(webSocket) :
 
 print()
 
-# Loads the WebSockets module globally,
+# Loads the PyhtmlTemplate module globally,
+MicroWebSrv2.LoadModule('PyhtmlTemplate')
+
+# Loads the WebSockets module globally and configure it,
 wsMod = MicroWebSrv2.LoadModule('WebSockets')
 wsMod.OnWebSocketAccepted = OnWebSocketAccepted
 
