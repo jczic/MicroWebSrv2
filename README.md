@@ -16,9 +16,7 @@
 
 ```
 
-#### :small_blue_diamond: [Download last release (Zip)](https://github.com/jczic/MicroWebSrv/archive/master.zip)
-
-<br />
+#### :small_red_triangle_down: [Download last release (Zip)](https://github.com/jczic/MicroWebSrv/archive/master.zip)
 
 _**microWebSrv2 is the new powerful embedded Web Server for MicroPython and CPython that supports routes handlers and modules like WebSockets.**_
 
