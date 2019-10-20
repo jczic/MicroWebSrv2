@@ -143,13 +143,25 @@ def OnWSChatClosed(webSocket) :
 
 print()
 
+# Loads the WebSockets module globally,
 wsMod = MicroWebSrv2.LoadModule('WebSockets')
 wsMod.OnWebSocketAccepted = OnWebSocketAccepted
 
+# Instanciates the MicroWebSrv2 class,
 mws2 = MicroWebSrv2()
-#mws2.EnableSSL( certFile = 'SSL-Cert/openhc2.crt',
-#                keyFile  = 'SSL-Cert/openhc2.key' )
+
+# SSL is not correctly supported on MicroPython.
+# But you can uncomment the following for standard Python.
+# mws2.EnableSSL( certFile = 'SSL-Cert/openhc2.crt',
+#                 keyFile  = 'SSL-Cert/openhc2.key' )
+
+# For embedded MicroPython, use a very light configuration,
+mws2.SetEmbeddedConfig()
+
+# All pages not found will be redirected to the home '/',
 mws2.NotFoundURL = '/'
+
+# Starts the server as easily as possible in managed mode,
 mws2.StartManaged()
 
 # Main program loop until keyboard interrupt,

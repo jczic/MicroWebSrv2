@@ -25,8 +25,8 @@
 				scheme = 'wss:';
 			else
 				scheme = 'ws:';
-			var wsUri           = scheme + '//' + window.location.hostname;
-			writeToScreen("Connection to " + wsUri + "...")
+			var wsUri = scheme + '//' + window.location.hostname;
+			writeToScreen("Connecting to " + wsUri + "...")
 			websocket           = new WebSocket(wsUri);
 			websocket.onopen    = function(evt) { onOpen    (evt) };
 			websocket.onclose   = function(evt) { onClose   (evt) };
@@ -40,7 +40,7 @@
 			SendMsg("Hello world :)");
 			SendMsg("This is a WebSocket test");
 			SendMsg("(with a text frame encoded in UTF-8)");
-			setTimeout( function() { websocket.close() }, 1000 )
+			setTimeout( function() { websocket.close() }, 3000 )
 		}
 
 		function onClose(evt)

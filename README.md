@@ -1,6 +1,6 @@
 ![Release](https://img.shields.io/github/v/release/jczic/microwebsrv2?include_prereleases&color=success)
 ![Size](https://img.shields.io/github/languages/code-size/jczic/microwebsrv2?color=blue)
-![MicroPython](https://img.shields.io/badge/micropython-In%20Progress-green.svg)
+![MicroPython](https://img.shields.io/badge/micropython-Ok-green.svg)
 ![Python](https://img.shields.io/badge/python-Ok-green.svg)
 ![License](https://img.shields.io/github/license/jczic/microwebsrv2?color=yellow)
 
@@ -529,7 +529,8 @@ except KeyboardInterrupt :
       # If <parllProcCount> is 0, the calling thread is used and blocked to process all http connections.
       # If <parllProcCount> is 1, only one thread is reserved to process all http connections.
       # If <parllProcCount> is greater than 1, multiple threads are reserved to share and process all http connections.
-      # If <procStackSize>  is 0, the default stack size is used.
+      # If <procStackSize>  is 0, the default stack size is used on CPython and a value of 8192 is used on MicroPython.
+      # A minimum value of 8*1024 is recommended for <procStackSize> but on CPython, the minimum value must be of 32*1024.
       # An exception will be raised if an error occurs.
       ```
 
@@ -595,7 +596,7 @@ except KeyboardInterrupt :
       # Parameters set:
       #   - ConnQueueCapacity       = 8
       #   - BufferSlotsCount        = 16
-      #   - BufferSlotSize          = 256
+      #   - BufferSlotSize          = 1024
       #   - KeepAllocBufferSlots    = True
       #   - MaxRequestContentLength = 16*1024
       # An exception can be raised if an error occurs.
@@ -1286,3 +1287,10 @@ except KeyboardInterrupt :
 
   - Copyright :copyright: 2019 [Jean-Christophe Bos](https://www.linkedin.com/in/jczic) & [HC²](https://www.hc2.fr).
   - This project is [MIT](LICENSE) licensed.
+
+---
+
+<br />
+<br />
+
+![microWebSrv2](/img/microWebSrv2.png "microWebSrv2")

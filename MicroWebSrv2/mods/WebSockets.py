@@ -51,7 +51,7 @@ class WebSockets :
 
     @OnWebSocketAccepted.setter
     def OnWebSocketAccepted(self, value) :
-        if not hasattr(value, '__call__') :
+        if type(value) is not type(lambda x:x) :
             raise ValueError('"OnWebSocketAccepted" must be a function.')
         self._onWebSocketAccepted = value
 
@@ -420,7 +420,7 @@ class WebSocket :
 
     @OnTextMessage.setter
     def OnTextMessage(self, value) :
-        if not hasattr(value, '__call__') :
+        if type(value) is not type(lambda x:x) :
             raise ValueError('"OnTextMessage" must be a function.')
         self._onTextMsg = value
 
@@ -432,7 +432,7 @@ class WebSocket :
 
     @OnBinaryMessage.setter
     def OnBinaryMessage(self, value) :
-        if not hasattr(value, '__call__') :
+        if type(value) is not type(lambda x:x) :
             raise ValueError('"OnBinaryMessage" must be a function.')
         self._onBinMsg = value
 
@@ -444,7 +444,7 @@ class WebSocket :
 
     @OnClosed.setter
     def OnClosed(self, value) :
-        if not hasattr(value, '__call__') :
+        if type(value) is not type(lambda x:x) :
             raise ValueError('"OnClosed" must be a function.')
         self._onClosed = value
 

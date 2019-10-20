@@ -563,9 +563,9 @@ class XAsyncTCPClient(XAsyncSocket) :
                                     self._onDataRecv(self, line, self._onDataRecvArg)
                                 except Exception as ex :
                                     raise XAsyncTCPClientException('Error when handling the "OnDataRecv" event : %s' % ex)
-                            else :
-                                return
-                            break
+                            if self.IsSSL and self._socket.pending() > 0 :
+                                break
+                            return
                         elif b != b'\r' :
                             if self._rdLinePos < self._recvBufSlot.Size :
                                 self._recvBufSlot.Buffer[self._rdLinePos] = ord(b)
@@ -613,7 +613,7 @@ class XAsyncTCPClient(XAsyncSocket) :
                             self._onDataRecv(self, data, self._onDataRecvArg)
                         except Exception as ex :
                             raise XAsyncTCPClientException('Error when handling the "OnDataRecv" event : %s' % ex)
-                    else :
+                    if not self.IsSSL or self._socket.pending() == 0 :
                         return
             else :
                 return
@@ -804,7 +804,8 @@ class XAsyncTCPClient(XAsyncSocket) :
 
     @property
     def IsSSL(self) :
-        return isinstance(self._socket, ssl.SSLSocket)
+        return ( hasattr(ssl, 'SSLContext') and \
+                 isinstance(self._socket, ssl.SSLSocket) )
 
     @property
     def SendingBuffer(self) :

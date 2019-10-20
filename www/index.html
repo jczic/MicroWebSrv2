@@ -2,27 +2,41 @@
 
 <html lang=fr>
 
-	<head>
-		<meta charset="UTF-8" />
-		<title>MicroWebSrv2</title>
-		<link rel="stylesheet" href="style.css" />
-	</head>
+    <head>
+        <meta charset="UTF-8" />
+        <title>MicroWebSrv2</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
 
-	<body>
-		<h1>&lt; MicroWebSrv2 /&gt;</h1>
-		<h2>Test page</h2>
-		<p>
-			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis eget ligula quis libero mollis dapibus. Suspendisse potenti. Nullam facilisis neque et sem. Proin placerat adipiscing urna. Aenean sollicitudin. Mauris lorem erat, fringilla quis, sagittis a, varius sed, nunc. Pellentesque ligula. Nullam egestas eleifend turpis. Vivamus ac sapien. Sed venenatis, ligula ut scelerisque vehicula, erat tellus euismod ipsum, eget faucibus tortor arcu et lectus. Vivamus vel purus. Fusce dignissim tortor quis diam elementum fermentum. Mauris eleifend lorem vel arcu. Vivamus tempus faucibus lectus. Curabitur volutpat ornare mi. Curabitur ac libero. Sed eu elit ac metus egestas iaculis.
-		</p>
-		<br />
-		<hr />
-		<br />
-		<div style="text-align: center">
-			<img src="pdf.png" />
-			<p>
-				View a « <a href="test.pdf">PDF file</a> »
-			</p>
-		</div>
-	</body>
+    <body style="padding: 0 70px;">
+        <h1>&lt; MicroWebSrv2 /&gt;</h1>
+        <h2>About</h2>
+        <p>
+            This project follows the embedded <a href="https://github.com/jczic/MicroWebSrv">MicroWebSrv</a>,
+            which is mainly used on microcontrollers such as Pycom, ESP32 and STM32 on Pyboards.<br />
+            <br />
+            In a need for scalability and to meet the IoT universe, <b>microWebSrv2</b> was developed as a new project
+            and has been completely redesigned to be much more robust and efficient that its predecessor.<br />
+            <br />
+            Internal mechanisms works <b>directly at I/O level</b>, are fully asynchronous from end to end, and manages the memory in a highly optimized way.
+            Also, architecture makes its integration very easy and the source code, **MIT licensed**, remains really small.<br />
+            <br />
+        </p>
+        <ul>
+            <li><a href="test-redir">Test a redirection</a></li>
+            <li><a href="test-post">Test a POST form</a></li>
+            <li><a href="wstest.html">Test the WebSockets page</a></li>
+            <li><a href="wschat.html">Test the multi-users chat page</a></li>
+        </ul>
+        <br />
+        <hr />
+        <br />
+        <div style="text-align: center">
+            <img src="pdf.png" />
+            <p>
+                View a « <a href="test.pdf">PDF file</a> »
+            </p>
+        </div>
+    </body>
 
 </html>

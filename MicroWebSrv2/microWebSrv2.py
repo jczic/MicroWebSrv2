@@ -7,6 +7,7 @@ Copyright © 2019 Jean-Christophe Bos & HC² (www.hc2.fr)
 from .             import *
 from .httpRequest  import HttpRequest
 from os            import stat
+from sys           import implementation
 from _thread       import stack_size
 
 # ============================================================================
@@ -113,7 +114,7 @@ class MicroWebSrv2 :
             raise MicroWebSrv2Exception('Module "%s" is already loaded.' % modName)
         try :
             module   = __import__('MicroWebSrv2.mods.%s' % modName, { }, { }, [modName])
-            modClass = module.__dict__[modName]
+            modClass = getattr(module, modName)
             if type(modClass) is not type :
                 raise Exception
             modInstance = modClass()
@@ -191,6 +192,8 @@ class MicroWebSrv2 :
             raise ValueError('"procStackSize" must be a positive integer or zero.')
         if self._xasSrv :
             raise MicroWebSrv2Exception('Server is already running.')
+        if procStackSize == 0 and implementation.name == 'micropython' :
+            procStackSize = 8*1024
         try :
             saveStackSize = stack_size(procStackSize)
         except Exception as ex :
@@ -245,7 +248,7 @@ class MicroWebSrv2 :
         physPath = self._rootPath + urlPath.replace('..', '/')
         endSlash = physPath.endswith('/')
         physDir  = physPath + ('/' if not endSlash else '')
-        if MicroWebSrv2._physPathExists(physDir) :
+        if MicroWebSrv2._physPathExists(physDir + '..') :
             for filename in MicroWebSrv2._DEFAULT_PAGES :
                 p = physDir + filename
                 if MicroWebSrv2._physPathExists(p) :
@@ -323,7 +326,7 @@ class MicroWebSrv2 :
         self._validateChangeConf()
         self._backlog       = 8
         self._slotsCount    = 16
-        self._slotsSize     = 256
+        self._slotsSize     = 1024
         self._keepAlloc     = True
         self._maxContentLen = 16*1024
 
@@ -495,7 +498,7 @@ class MicroWebSrv2 :
 
     @OnLogging.setter
     def OnLogging(self, value) :
-        if not hasattr(value, '__call__') :
+        if type(value) is not type(lambda x:x) :
             raise ValueError('"OnLogging" must be a function.')
         self._onLogging = value
 
