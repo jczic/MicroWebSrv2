@@ -20,6 +20,8 @@ _**Fully asynchronous, its connections and memory management are very optimized 
 
 _**Mostly used on Pycom WiPy, ESP32, STM32 on Pyboard, ... Robust and efficient!** (see [Features](#features))_
 
+### [Download Zip](https://github.com/jczic/MicroWebSrv/archive/master.zip)
+
 ---
 
 # :bookmark_tabs: &nbsp;Table of contents
