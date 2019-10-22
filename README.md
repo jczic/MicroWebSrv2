@@ -131,7 +131,7 @@ Also, architecture makes its integration very easy and the source code, **MIT li
 
 - Take advantage of the **WebSockets module** to exchange messages in real time via **WS or secured WSS** connection.
 
-- Create **.pyhtml pages** for an HTML rendering with integrated Python using the **PyhtmlTemplate module** transparently.
+- Create **.pyhtml pages** for an HTML rendering with integrated Python using the **PyhtmlTemplate module**.
 
 ---
 
