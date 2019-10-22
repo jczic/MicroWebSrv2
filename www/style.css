@@ -33,3 +33,12 @@ a:hover {
 a:active, a:focus {
 	color: red;
 }
+.sep {
+	margin: 15px 0;
+	height: 3px;
+	background-color: #5FA3D3;
+}
+.label {
+	color: #D35F8D;
+	font-weight: bold;
+}

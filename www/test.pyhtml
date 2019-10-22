@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+        <meta charset="utf-8" />
+        <title>MicroWebSrv2 - PyhtmlTemplate Module</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+
+    <body>
+
+        {{ py }}
+
+            import sys
+
+            def _incAndGetToto() :
+                if not 'toto' in Shared :
+                    Shared['toto'] = 0
+                Shared['toto'] += 1
+                return Shared['toto']
+
+        {{ end }}
+
+        <h1>MicroWebSrv2 - PyhtmlTemplate Module</h1>
+
+        <div class="sep"></div>
+
+        Platform: {{ sys.platform }}<br />
+        Version: {{ sys.version }}<br />
+
+        <div class="sep"></div>
+
+        Shared 'toto': <span class="label">{{ _incAndGetToto() }}</span><br />
+        * Refresh this page to see this variable changing.
+
+        <div class="sep"></div>
+        
+        Your address:<br />
+        <ul>
+            <li>IP = {{ Request.UserAddress[0] }}</li>
+            <li>Port = {{ Request.UserAddress[1] }}</li>
+        </ul>
+        
+        <div class="sep"></div>
+        
+        {{ if 'CHROME' in Request.UserAgent.upper() }}
+            You are on <span class="label">Chrome</span> browser.
+        {{ elif 'FIREFOX' in Request.UserAgent.upper() }}
+            You are on <span class="label">Firefox</span> browser.
+        {{ else }}
+            You are not on Chrome or Firefox browser.
+        {{ end }}
+        
+        <div class="sep"></div>
+        
+        You are in SSL: {{ Request.IsSSL }}<br />
+        
+        <div class="sep"></div>
+        
+        Your host: {{ Request.Host }}<br />
+        
+        <div class="sep"></div>
+        
+        Requested path: {{ Request.Path }}<br />
+        
+        <div class="sep"></div>
+        
+        Your query params:
+        {{ if not Request.QueryParams }}
+            <a href="?question=How are you?&answer=I'm fine!">
+                Test query string on this page.
+            </a>
+        {{ else }}
+            <ul>
+                {{ for param in Request.QueryParams }}
+                    <li>Param "{{ param }}" = "{{ Request.QueryParams[param] }}"</li>
+                {{ end }}
+            </ul>
+        {{ end }}
+        
+        <div class="sep"></div>
+        
+        Accepted content types:
+            <ul>
+                {{ for accept in Request.Accept }}
+                    <li>{{ accept }}</li>
+                {{ end }}
+            </ul>
+        
+        <div class="sep"></div>
+        
+        Accepted encodings:
+            <ul>
+                {{ for encoding in Request.AcceptEncodings }}
+                    <li>{{ encoding }}</li>
+                {{ end }}
+            </ul>
+        
+        <div class="sep"></div>
+        
+        Accepted languages:
+            <ul>
+                {{ for language in Request.AcceptLanguages }}
+                    <li>{{ language }}</li>
+                {{ end }}
+            </ul>
+        
+        <div class="sep"></div>
+        
+        Your request is keep-alive: {{ Request.IsKeepAlive }}<br />
+        
+        <div class="sep"></div>
+        
+        Your user agent:<br />
+        {{ Request.UserAgent }}
+        
+        <div class="sep"></div>
+
+    </body>
+
+</html>
