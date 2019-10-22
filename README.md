@@ -18,7 +18,7 @@
 
 <br />
 
-**MicroWebSrv2** is the new powerful embedded Web Server for **MicroPython** and **CPython** that supports **route handlers**, modules like **WebSockets** and a **lot of simultaneous requests** (in thousands!).
+**MicroWebSrv2** is the new powerful embedded Web Server for **MicroPython** and **CPython** that supports **route handlers**, modules like **WebSockets** or **PyhtmlTemplate** and a **lot of simultaneous requests** (in thousands!).
 
 **Fully asynchronous**, its connections and memory management are **very optimized** and **truly fast**.
 
@@ -70,6 +70,7 @@ Mostly used on **Pycom WiPy**, **ESP32**, **STM32** on **Pyboard**, ... **Robust
       - [WebSocket Class](#websocket-class)
         - [Instance Methods](#websocket-func)
         - [Properties](#websocket-prop)
+    - [**PyhtmlTemplate Module**](#pyhtmltemplate-mod)
 - [**Author**](#author)
 - [**License**](#license)
 
@@ -130,6 +131,8 @@ Also, architecture makes its integration very easy and the source code, **MIT li
 
 - Take advantage of the **WebSockets module** to exchange messages in real time via **WS or secured WSS** connection.
 
+- Create **.pyhtml pages** for an HTML rendering with integrated Python using the **PyhtmlTemplate module** transparently.
+
 ---
 
 <a name="install"></a>
@@ -158,6 +161,7 @@ Also, architecture makes its integration very easy and the source code, **MIT li
     - [http://localhost/test-post](http://localhost/test-post) to test a POST form
     - [http://localhost/wstest.html](http://localhost/wstest.html) to test the WebSockets page
     - [http://localhost/wschat.html](http://localhost/wschat.html) to test the multi-users chat page
+    - [http://localhost/test.pyhtml](http://localhost/test.pyhtml) to test a pyhtml template page
 
 ![WebSockets Chat](/img/wschat.png "WebSockets Chat")
 
@@ -201,6 +205,7 @@ except KeyboardInterrupt :
           - :small_orange_diamond: urlUtils.py
         - :small_blue_diamond: **/mods**
           - :small_orange_diamond: WebSockets.py
+          - :small_orange_diamond: PyhtmlTemplate.py
 
     ---
 
@@ -1178,7 +1183,7 @@ except KeyboardInterrupt :
     <a name="websockets-mod"></a>
     - ## WebSockets Module
 
-      WebSockets module must be loaded first by **microWebSrv2** to process WebSocket connections.  
+      **WebSockets module** must be loaded first by **microWebSrv2** to process WebSocket connections.  
       These are fully managed asynchronous I/Os and really many connections can be processed.  
       After module loaded, do not forget to assign the callback [OnWebSocketAccepted](#ws-mod-onwebsocketaccepted).  
       ```python
@@ -1190,7 +1195,6 @@ except KeyboardInterrupt :
       wsMod = MicroWebSrv2.LoadModule('WebSockets')
       wsMod.OnWebSocketAccepted = OnWebSocketAccepted
       ```
-
 
       ---
     
@@ -1285,6 +1289,22 @@ except KeyboardInterrupt :
           def OnClosed(webSocket)
           # <webSocket> is of type WebSocket
           ```
+
+    ---
+
+    <a name="pyhtmltemplate-mod"></a>
+    - ## PyhtmlTemplate Module
+
+      **PyhtmlTemplate module** must be loaded first by **microWebSrv2** to process .pyhtml pages.  
+      With it, you will be able to render HTML pages directly integrating Python/MicroPython language.  
+      ```python
+      from MicroWebSrv2 import *
+
+      MicroWebSrv2.LoadModule('PyhtmlTemplate')
+      ```
+
+      Help coming soon...  
+      (Please check the test.pyhtml page)
 
 ---
 
