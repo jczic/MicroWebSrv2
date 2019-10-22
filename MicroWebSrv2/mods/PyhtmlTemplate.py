@@ -16,13 +16,14 @@ class PyhtmlTemplate :
     # ------------------------------------------------------------------------
 
     def __init__(self) :
-        self._shared = { }
+        self._pyGlobalVars = { }
 
     # ------------------------------------------------------------------------
 
-    @property
-    def Shared(self) :
-        return self._shared
+    def SetGlobalVar(self, globalVarName, globalVar) :
+        if not isinstance(globalVarName, str) or len(globalVarName) == 0 :
+            raise ValueError('"globalVarName" must be a not empty string.')
+        self._pyGlobalVars[globalVarName] = globalVar
 
     # ------------------------------------------------------------------------
 
@@ -34,10 +35,9 @@ class PyhtmlTemplate :
                     with open(filepath, 'r') as file :
                         code = file.read()
                     try :
+                        self._pyGlobalVars['Request'] = request
                         codeTemplate = CodeTemplate(code, microWebSrv2.HTMLEscape)
-                        pyGlobalVars = { "Shared"  : self._shared,
-                                         "Request" : request }
-                        content      = codeTemplate.Execute(pyGlobalVars, None)
+                        content      = codeTemplate.Execute(self._pyGlobalVars, None)
                         request.Response.ReturnOk(content)
                     except Exception as ex :
                         microWebSrv2.Log( 'Exception raised from pyhtml template file "%s": %s' % (filepath, ex),
@@ -116,8 +116,8 @@ class CodeTemplate :
     def _parseCode(self, pyGlobalVars, pyLocalVars, execute) :
         self._pos          = 0
         self._line         = 1
-        self._pyGlobalVars = (pyGlobalVars if pyGlobalVars else { })
-        self._pyLocalVars  = (pyLocalVars  if pyLocalVars  else { })
+        self._pyGlobalVars = (pyGlobalVars if isinstance(pyGlobalVars, dict) else { })
+        self._pyLocalVars  = (pyLocalVars  if isinstance(pyLocalVars,  dict) else { })
         self._rendered     = ''
         newTokenToProcess  = self._parseBloc(execute)
         if newTokenToProcess is not None :

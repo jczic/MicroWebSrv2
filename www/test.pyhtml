@@ -14,11 +14,11 @@
 
             import sys
 
-            def _incAndGetToto() :
-                if not 'toto' in Shared :
-                    Shared['toto'] = 0
-                Shared['toto'] += 1
-                return Shared['toto']
+            global Toto
+            try :
+                Toto += 1
+            except :
+                Toto = 1
 
         {{ end }}
 
@@ -26,20 +26,25 @@
 
         <div class="sep"></div>
 
-        Platform: {{ sys.platform }}<br />
-        Version: {{ sys.version }}<br />
+        Platform: {{ sys.platform }} <br />
+        Version:  {{ sys.version  }} <br />
 
         <div class="sep"></div>
 
-        Shared 'toto': <span class="label">{{ _incAndGetToto() }}</span><br />
+        Global var "TestVar" : <span class="label">{{ TestVar }}</span><br />
+        * Set from the main program.
+
+        <div class="sep"></div>
+
+        Global var "Toto" : <span class="label">{{ Toto }}</span><br />
         * Refresh this page to see this variable changing.
 
         <div class="sep"></div>
         
         Your address:<br />
         <ul>
-            <li>IP = {{ Request.UserAddress[0] }}</li>
-            <li>Port = {{ Request.UserAddress[1] }}</li>
+            <li> IP   = {{ Request.UserAddress[0] }} </li>
+            <li> Port = {{ Request.UserAddress[1] }} </li>
         </ul>
         
         <div class="sep"></div>
@@ -82,29 +87,29 @@
         <div class="sep"></div>
         
         Accepted content types:
-            <ul>
-                {{ for accept in Request.Accept }}
-                    <li>{{ accept }}</li>
-                {{ end }}
-            </ul>
+        <ul>
+            {{ for accept in Request.Accept }}
+                <li>{{ accept }}</li>
+            {{ end }}
+        </ul>
         
         <div class="sep"></div>
         
         Accepted encodings:
-            <ul>
-                {{ for encoding in Request.AcceptEncodings }}
-                    <li>{{ encoding }}</li>
-                {{ end }}
-            </ul>
+        <ul>
+            {{ for encoding in Request.AcceptEncodings }}
+                <li>{{ encoding }}</li>
+            {{ end }}
+        </ul>
         
         <div class="sep"></div>
         
         Accepted languages:
-            <ul>
-                {{ for language in Request.AcceptLanguages }}
-                    <li>{{ language }}</li>
-                {{ end }}
-            </ul>
+        <ul>
+            {{ for language in Request.AcceptLanguages }}
+                <li>{{ language }}</li>
+            {{ end }}
+        </ul>
         
         <div class="sep"></div>
         
