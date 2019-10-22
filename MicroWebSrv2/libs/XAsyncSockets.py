@@ -753,7 +753,7 @@ class XAsyncTCPClient(XAsyncSocket) :
                   keyfile     = None,
                   certfile    = None,
                   server_side = False,
-                  cert_reqs   = ssl.CERT_NONE,
+                  cert_reqs   = 0,
                   ca_certs    = None ) :
         if not hasattr(ssl, 'SSLContext') :
             raise XAsyncTCPClientException('StartSSL : This SSL implementation is not supported.')
