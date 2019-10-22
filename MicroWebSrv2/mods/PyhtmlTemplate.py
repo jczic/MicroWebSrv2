@@ -16,7 +16,13 @@ class PyhtmlTemplate :
     # ------------------------------------------------------------------------
 
     def __init__(self) :
-        self._sharedVars = { }
+        self._shared = { }
+
+    # ------------------------------------------------------------------------
+
+    @property
+    def Shared(self) :
+        return self._shared
 
     # ------------------------------------------------------------------------
 
@@ -29,7 +35,7 @@ class PyhtmlTemplate :
                         code = file.read()
                     try :
                         codeTemplate = CodeTemplate(code, microWebSrv2.HTMLEscape)
-                        pyGlobalVars = { "Shared"  : self._sharedVars,
+                        pyGlobalVars = { "Shared"  : self._shared,
                                          "Request" : request }
                         content      = codeTemplate.Execute(pyGlobalVars, None)
                         request.Response.ReturnOk(content)
