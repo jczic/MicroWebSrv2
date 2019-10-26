@@ -27,6 +27,16 @@ class PyhtmlTemplate :
 
     # ------------------------------------------------------------------------
 
+    def GetGlobalVar(self, globalVarName) :
+        if not isinstance(globalVarName, str) or len(globalVarName) == 0 :
+            raise ValueError('"globalVarName" must be a not empty string.')
+        try :
+            return self._pyGlobalVars[globalVarName]
+        except :
+            return None
+
+    # ------------------------------------------------------------------------
+
     def OnRequest(self, microWebSrv2, request) :
         if request.Method == 'GET' and request.Path.lower().endswith('.pyhtml') :
             filepath = microWebSrv2.ResolvePhysicalPath(request.Path)
