@@ -13,10 +13,58 @@ import re
 
 class PyhtmlTemplate :
 
+    _CODE_CONTENT_DEBUG = """\
+    <html>
+        <head>
+            <title>MicroWebSrv2</title>
+        </head>
+        <body style="font-family: Verdana; background-color: Black; color: White;">
+            <h2>MicroWebSrv2 - [500] Internal Server Error</h2>
+            <div style="margin: 20px;">
+                <h3>PyhtmlTemplate Module Debug</h3>
+                <div style="padding: 15px; background-color: Crimson;">
+                    Exception in %(path)s<br />
+                    %(message)s
+                </div>
+            </div>
+        </body>
+    </html>
+    """
+
     # ------------------------------------------------------------------------
 
     def __init__(self) :
+        self._showDebug    = False
         self._pyGlobalVars = { }
+
+    # ------------------------------------------------------------------------
+
+    def OnRequest(self, microWebSrv2, request) :
+        if request.Method == 'GET' and request.Path.lower().endswith('.pyhtml') :
+            filepath = microWebSrv2.ResolvePhysicalPath(request.Path)
+            if filepath :
+                try :
+                    with open(filepath, 'r') as file :
+                        code = file.read()
+                    try :
+                        self._pyGlobalVars['Request'] = request
+                        codeTemplate = CodeTemplate(code, microWebSrv2.HTMLEscape)
+                        content      = codeTemplate.Execute(self._pyGlobalVars, None)
+                        request.Response.ReturnOk(content)
+                    except Exception as ex :
+                        microWebSrv2.Log( 'Exception raised from pyhtml template file "%s": %s' % (filepath, ex),
+                                          microWebSrv2.ERROR )
+                        if self._showDebug :
+                            request.Response.Return( 500,
+                                                     PyhtmlTemplate._CODE_CONTENT_DEBUG
+                                                     % { 'path'    : filepath,
+                                                         'message' : ex } )
+                        else :
+                            request.Response.ReturnInternalServerError()
+                except :
+                    request.Response.ReturnForbidden()
+            else :
+                request.Response.ReturnNotFound()
 
     # ------------------------------------------------------------------------
 
@@ -37,26 +85,15 @@ class PyhtmlTemplate :
 
     # ------------------------------------------------------------------------
 
-    def OnRequest(self, microWebSrv2, request) :
-        if request.Method == 'GET' and request.Path.lower().endswith('.pyhtml') :
-            filepath = microWebSrv2.ResolvePhysicalPath(request.Path)
-            if filepath :
-                try :
-                    with open(filepath, 'r') as file :
-                        code = file.read()
-                    try :
-                        self._pyGlobalVars['Request'] = request
-                        codeTemplate = CodeTemplate(code, microWebSrv2.HTMLEscape)
-                        content      = codeTemplate.Execute(self._pyGlobalVars, None)
-                        request.Response.ReturnOk(content)
-                    except Exception as ex :
-                        microWebSrv2.Log( 'Exception raised from pyhtml template file "%s": %s' % (filepath, ex),
-                                          microWebSrv2.ERROR )
-                        request.Response.ReturnInternalServerError()
-                except :
-                    request.Response.ReturnForbidden()
-            else :
-                request.Response.ReturnNotFound()
+    @property
+    def ShowDebug(self) :
+        return self._showDebug
+
+    @ShowDebug.setter
+    def ShowDebug(self, value) :
+        if not isinstance(value, bool) :
+            raise ValueError('"ShowDebug" must be a boolean.')
+        self._showDebug = value
 
 # ============================================================================
 # ===( CodeTemplate )=========================================================
