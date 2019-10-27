@@ -8,8 +8,6 @@
 ![Python](https://img.shields.io/badge/python-Ok-green.svg)
 ![License](https://img.shields.io/github/license/jczic/microwebsrv2?color=yellow)
 
----
-
 <br />
 
 **MicroWebSrv2** is the new powerful embedded Web Server for **MicroPython** and **CPython** that supports **route handlers**, modules like **WebSockets** or **PyhtmlTemplate** and a **lot of simultaneous requests** (in thousands!).
@@ -21,7 +19,8 @@ Mostly used on **Pycom WiPy**, **ESP32**, **STM32** on **Pyboard**, ... **Robust
 #### [microWebSrv on GitHub](https://github.com/jczic/MicroWebSrv)
 
 <br />
-<br />
+
+---
 
 # About
 
