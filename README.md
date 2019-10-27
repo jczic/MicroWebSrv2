@@ -24,7 +24,7 @@
 
 Mostly used on **Pycom WiPy**, **ESP32**, **STM32** on **Pyboard**, ... **Robust** and **efficient**! (see [Features](#features))
 
-#### :small_orange_diamond: [Download last release (Zip)](https://github.com/jczic/MicroWebSrv/archive/master.zip)
+#### :small_orange_diamond: [Download last release (Zip)](https://github.com/jczic/MicroWebSrv2/archive/master.zip)
 
 <br />
 
