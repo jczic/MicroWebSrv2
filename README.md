@@ -17,9 +17,9 @@ Mostly used on **Pycom WiPy**, **ESP32**, **STM32** on **Pyboard**, ... **Robust
 
 #### :small_orange_diamond: [Download last release (Zip)](https://github.com/jczic/MicroWebSrv2/archive/master.zip)
 
----
-
 <br />
+
+---
 
 ```vhdl
                 _               __    __     _     __            ____  
@@ -30,8 +30,6 @@ Mostly used on **Pycom WiPy**, **ESP32**, **STM32** on **Pyboard**, ... **Robust
 
 
 ```
-
-<br />
 
 ---
 
