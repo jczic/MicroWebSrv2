@@ -1,4 +1,5 @@
-# microWebSrv2
+
+![microWebSrv2](/img/microWebSrv2.png "microWebSrv2")
 
 <br />
 
@@ -16,7 +17,7 @@
 
 Mostly used on **Pycom WiPy**, **ESP32**, **STM32** on **Pyboard**, ... **Robust** and **efficient**! (see [Features](#features))
 
-### [microWebSrv2 on GitHub](https://github.com/jczic/MicroWebSrv2)
+### --> [microWebSrv2 on GitHub](https://github.com/jczic/MicroWebSrv2) <--
 
 <br />
 
@@ -91,11 +92,13 @@ Also, architecture makes its integration very easy and the source code, **MIT li
 ## License
 
   - Copyright (c) 2019 [Jean-Christophe Bos](https://www.linkedin.com/in/jczic) & [HC²](https://www.hc2.fr).
-  - This project is [MIT](LICENSE) licensed.
+  - This project is [MIT](https://github.com/jczic/MicroWebSrv2/blob/master/LICENSE.md) licensed.
 
 ---
 
+### --> [microWebSrv2 on GitHub](https://github.com/jczic/MicroWebSrv2) <--
+
 <br />
 <br />
 
-![microWebSrv2](img/microWebSrv2.png "microWebSrv2")
+![microWebSrv2](/img/microWebSrv2.png "microWebSrv2")
