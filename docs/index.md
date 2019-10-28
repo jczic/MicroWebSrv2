@@ -98,4 +98,4 @@ Also, architecture makes its integration very easy and the source code, **MIT li
 <br />
 <br />
 
-![microWebSrv2](/img/microWebSrv2.png "microWebSrv2")
+![microWebSrv2](img/microWebSrv2.png "microWebSrv2")
