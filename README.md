@@ -1,8 +1,23 @@
+
+![New microWebSrv2](/img/microWebSrv2.png "microWebSrv2")
+
 ![Release](https://img.shields.io/github/v/release/jczic/microwebsrv2?include_prereleases&color=success)
 ![Size](https://img.shields.io/github/languages/code-size/jczic/microwebsrv2?color=blue)
 ![MicroPython](https://img.shields.io/badge/micropython-Ok-green.svg)
 ![Python](https://img.shields.io/badge/python-Ok-green.svg)
 ![License](https://img.shields.io/github/license/jczic/microwebsrv2?color=yellow)
+
+<br />
+
+**MicroWebSrv2** is the new powerful embedded Web Server for **MicroPython** and **CPython** that supports **route handlers**, modules like **WebSockets** or **PyhtmlTemplate** and a **lot of simultaneous requests** (in thousands!).
+
+**Fully asynchronous**, its connections and memory management are **very optimized** and **truly fast**.
+
+Mostly used on **Pycom WiPy**, **ESP32**, **STM32** on **Pyboard**, ... **Robust** and **efficient**! (see [Features](#features))
+
+#### :small_orange_diamond: [Download last release (Zip)](https://github.com/jczic/MicroWebSrv2/archive/master.zip)
+
+---
 
 <br />
 
@@ -15,16 +30,6 @@
 
 
 ```
-
-<br />
-
-**MicroWebSrv2** is the new powerful embedded Web Server for **MicroPython** and **CPython** that supports **route handlers**, modules like **WebSockets** or **PyhtmlTemplate** and a **lot of simultaneous requests** (in thousands!).
-
-**Fully asynchronous**, its connections and memory management are **very optimized** and **truly fast**.
-
-Mostly used on **Pycom WiPy**, **ESP32**, **STM32** on **Pyboard**, ... **Robust** and **efficient**! (see [Features](#features))
-
-#### :small_orange_diamond: [Download last release (Zip)](https://github.com/jczic/MicroWebSrv2/archive/master.zip)
 
 <br />
 
@@ -1327,6 +1332,3 @@ except KeyboardInterrupt :
 ---
 
 <br />
-<br />
-
-![microWebSrv2](/img/microWebSrv2.png "microWebSrv2")
