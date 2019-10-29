@@ -1188,7 +1188,7 @@ except KeyboardInterrupt :
 
       **WebSockets module** must be loaded first by **microWebSrv2** to process WebSocket connections.  
       These are fully managed asynchronous I/Os and really many connections can be processed.  
-      After module loaded, do not forget to assign the callback [OnWebSocketAccepted](#ws-mod-onwebsocketaccepted).
+      After module loaded, do not forget to assign the callback [OnWebSocketAccepted](#ws-mod-onwebsocketaccepted).  
       If you need to select and process a sub-protocol, you must assign the callback [OnWebSocketProtocol](#ws-mod-onwebsocketprotocol).  
       ```python
       from MicroWebSrv2 import *
