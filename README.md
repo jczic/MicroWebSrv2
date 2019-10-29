@@ -1188,14 +1188,22 @@ except KeyboardInterrupt :
 
       **WebSockets module** must be loaded first by **microWebSrv2** to process WebSocket connections.  
       These are fully managed asynchronous I/Os and really many connections can be processed.  
-      After module loaded, do not forget to assign the callback [OnWebSocketAccepted](#ws-mod-onwebsocketaccepted).  
+      After module loaded, do not forget to assign the callback [OnWebSocketAccepted](#ws-mod-onwebsocketaccepted).
+      If you need to select and process a sub-protocol, you must assign the callback [OnWebSocketProtocol](#ws-mod-onwebsocketprotocol).  
       ```python
       from MicroWebSrv2 import *
 
+      WS_CHAT_SUB_PROTOCOL = 'myGreatChat-v1'
+
+      def OnWebSocketProtocol(microWebSrv2, protocols) :
+          if WS_CHAT_SUB_PROTOCOL in protocols :
+              return WS_CHAT_SUB_PROTOCOL
+
       def OnWebSocketAccepted(microWebSrv2, webSocket) :
-          print('New WebSocket accepted from %s:%s.' % webSocket.Request.UserAddress)
+          print('New WebSocket (myGreatChat proto) accepted from %s:%s.' % webSocket.Request.UserAddress)
 
       wsMod = MicroWebSrv2.LoadModule('WebSockets')
+      wsMod.OnWebSocketProtocol = OnWebSocketProtocol
       wsMod.OnWebSocketAccepted = OnWebSocketAccepted
       ```
 
@@ -1204,11 +1212,20 @@ except KeyboardInterrupt :
       <a name="websockets-mod-prop"></a>
       - ### WebSockets module properties
 
-        | Name                  |                   Type                          |           Get           |           Set           | Description                                                      |
-        |-----------------------|:-----------------------------------------------:|:-----------------------:|:-----------------------:|------------------------------------------------------------------|
-        | `OnWebSocketAccepted` | [callback](#ws-mod-onwebsocketaccepted) or None | :ballot_box_with_check: | :ballot_box_with_check: | *Callback function when a new WebSocket connection is accepted.* |
+        | Name                  |                   Type                          |           Get           |           Set           | Description                                                                    |
+        |-----------------------|:-----------------------------------------------:|:-----------------------:|:-----------------------:|--------------------------------------------------------------------------------|
+        | `OnWebSocketProtocol` | [callback](#ws-mod-onwebsocketprotocol) or None | :ballot_box_with_check: | :ballot_box_with_check: | *Callback function when a new WebSocket connection negociates a sub-protocol.* |
+        | `OnWebSocketAccepted` | [callback](#ws-mod-onwebsocketaccepted) or None | :ballot_box_with_check: | :ballot_box_with_check: | *Callback function when a new WebSocket connection is accepted.*               |
 
         > **Definition of the above callback functions:**
+
+        <a name="ws-mod-onwebsocketprotocol"></a>
+        ```python
+        def OnWebSocketProtocol(microWebSrv2, protocols)
+        # <microWebSrv2> is of type MicroWebSrv2
+        # <protocols> is a string list of proposed protocols
+        # RETURN: If you select a protocol, you must return it (the same as in the list)
+        ```
 
         <a name="ws-mod-onwebsocketaccepted"></a>
         ```python

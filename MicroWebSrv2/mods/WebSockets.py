@@ -20,6 +20,7 @@ class WebSockets :
     # ------------------------------------------------------------------------
 
     def __init__(self) :
+        self._onWebSocketProtocol = None
         self._onWebSocketAccepted = None
 
     # ------------------------------------------------------------------------
@@ -32,16 +33,42 @@ class WebSockets :
                 key      = request.GetHeader('Sec-Websocket-Key')
                 if key :
                     try :
-                        key += WebSockets._HANDSHAKE_SIGN
-                        sec  = sha1(key.encode()).digest()
-                        sec  = b2a_base64(sec).decode().strip()
+                        origin     = request.Origin
+                        key       += WebSockets._HANDSHAKE_SIGN
+                        sec        = sha1(key.encode()).digest()
+                        sec        = b2a_base64(sec).decode().strip()
+                        protocols  = request.GetHeader('Sec-WebSocket-Protocol')
+                        if origin :
+                            response.SetHeader('Access-Control-Allow-Origin', origin)
                         response.SetHeader('Sec-WebSocket-Accept', sec)
+                        if protocols and self._onWebSocketProtocol :
+                            protocols = [x.strip() for x in protocols.split(',')]
+                            try :
+                                proto = self._onWebSocketProtocol(microWebSrv2, protocols)
+                            except Exception as ex :
+                                microWebSrv2.Log( 'Exception raised from "WebSockets.OnWebSocketProtocol" handler: %s' % ex,
+                                                  microWebSrv2.ERROR )
+                                raise ex
+                            if proto in protocols :
+                                response.SetHeader('Sec-WebSocket-Protocol', proto)
                         response.SwitchingProtocols('websocket')
                         WebSocket(self, microWebSrv2, request)
                     except :
-                        response.ReturnBadRequest()
+                        response.ReturnInternalServerError()
                 else :
                     response.ReturnBadRequest()
+
+    # ------------------------------------------------------------------------
+
+    @property
+    def OnWebSocketProtocol(self) :
+        return self._onWebSocketProtocol
+
+    @OnWebSocketProtocol.setter
+    def OnWebSocketProtocol(self, value) :
+        if type(value) is not type(lambda x:x) :
+            raise ValueError('"OnWebSocketProtocol" must be a function.')
+        self._onWebSocketProtocol = value
 
     # ------------------------------------------------------------------------
 
