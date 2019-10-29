@@ -1342,7 +1342,7 @@ except KeyboardInterrupt :
 ## :eight_pointed_black_star: &nbsp;License
 
   - Copyright :copyright: 2019 [Jean-Christophe Bos](https://www.linkedin.com/in/jczic) & [HC²](https://www.hc2.fr).
-  - This project is [MIT](LICENSE) licensed.
+  - This project is [MIT](https://github.com/jczic/MicroWebSrv2/blob/master/LICENSE.md) licensed.
 
 ---
 
