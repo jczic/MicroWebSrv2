@@ -113,7 +113,9 @@ class MicroWebSrv2 :
         if modName in MicroWebSrv2._modules :
             raise MicroWebSrv2Exception('Module "%s" is already loaded.' % modName)
         try :
-            module   = __import__('MicroWebSrv2.mods.%s' % modName, { }, { }, [modName])
+            modPath  = MicroWebSrv2.__module__.split('microWebSrv2')[0] \
+                     + ('mods.%s' % modName)
+            module   = __import__(modPath, { }, { }, [modName])
             modClass = getattr(module, modName)
             if type(modClass) is not type :
                 raise Exception
