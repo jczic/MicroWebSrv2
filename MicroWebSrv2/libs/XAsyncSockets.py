@@ -464,7 +464,14 @@ class XAsyncTCPClient(XAsyncSocket) :
                     asyncTCPCli._setExpireTimeout(connectTimeout)
                     ok = True
             else :
-                srvAddr = socket.getaddrinfo(srvAddr[0], srvAddr[1])[0][-1]
+                try :
+                    addr = socket.getaddrinfo( srvAddr[0],
+                                               srvAddr[1],
+                                               socket.AF_INET )
+                except :
+                    addr = socket.getaddrinfo( srvAddr[0],
+                                               srvAddr[1] )
+                addr = addr[0][-1]
                 if connectAsync :
                     asyncTCPCli._setExpireTimeout(connectTimeout)
                 else :
