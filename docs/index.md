@@ -23,7 +23,7 @@ Mostly used on **Pycom WiPy**, **ESP32**, **STM32** on **Pyboard**, ... **Robust
 
 ---
 
-```vhdl
+```sh
                 _               __    __     _     __            ____  
       _ __ ___ (_) ___ _ __ ___/ / /\ \ \___| |__ / _\_ ____   _|___ \ 
      | '_ ` _ \| |/ __| '__/ _ \ \/  \/ / _ | '_ \\ \| '__\ \ / / __) |
@@ -229,7 +229,7 @@ except KeyboardInterrupt :
       - Responses (see [HttpResponse class](#response-class))
       - Modules (see [Additional modules](#modules))
 
-    Now, you have everything you need to continue :sunglasses:
+    Now, you have everything you need to continue :')
 
     ---
 
