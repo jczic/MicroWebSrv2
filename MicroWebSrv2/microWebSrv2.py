@@ -100,6 +100,8 @@ class MicroWebSrv2 :
     def _physPathExists(physPath) :
         try :
             stat(physPath)
+        except OSError as ose :
+            return (ose.args[0] == 22)
         except :
             return False
         return True
@@ -250,7 +252,7 @@ class MicroWebSrv2 :
         physPath = self._rootPath + urlPath.replace('..', '/')
         endSlash = physPath.endswith('/')
         physDir  = physPath + ('/' if not endSlash else '')
-        if MicroWebSrv2._physPathExists(physDir + '..') :
+        if MicroWebSrv2._physPathExists(physDir) :
             for filename in MicroWebSrv2._DEFAULT_PAGES :
                 p = physDir + filename
                 if MicroWebSrv2._physPathExists(p) :
