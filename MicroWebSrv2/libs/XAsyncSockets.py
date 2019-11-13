@@ -108,32 +108,35 @@ class XAsyncSocketsPool :
         timeSec = perf_counter()
         while self._processing :
             try :
-                rd, wr, ex = select( self._readList,
-                                     self._writeList,
-                                     self._readList,
-                                     self._CHECK_SEC_INTERVAL )
-            except :
-                continue
-            if not self._processing :
+                try :
+                    rd, wr, ex = select( self._readList,
+                                         self._writeList,
+                                         self._readList,
+                                         self._CHECK_SEC_INTERVAL )
+                except :
+                    continue
+                if not self._processing :
+                    break
+                for socketsList in ex, wr, rd :
+                    for socket in socketsList :
+                        asyncSocket = self._asyncSockets.get(socket.fileno(), None)
+                        if asyncSocket and self._socketListAdd(socket, self._handlingList) :
+                            if socketsList is ex :
+                                asyncSocket.OnExceptionalCondition()
+                            elif socketsList is wr :
+                                asyncSocket.OnReadyForWriting()
+                            else :
+                                asyncSocket.OnReadyForReading()
+                            self._socketListRemove(socket, self._handlingList)
+                sec = perf_counter()
+                if sec > timeSec + self._CHECK_SEC_INTERVAL :
+                    timeSec = sec
+                    for asyncSocket in list(self._asyncSockets.values()) :
+                        if asyncSocket.ExpireTimeSec and \
+                           timeSec > asyncSocket.ExpireTimeSec :
+                            asyncSocket._close(XClosedReason.Timeout)
+            except KeyboardInterrupt :
                 break
-            for socketsList in ex, wr, rd :
-                for socket in socketsList :
-                    asyncSocket = self._asyncSockets.get(socket.fileno(), None)
-                    if asyncSocket and self._socketListAdd(socket, self._handlingList) :
-                        if socketsList is ex :
-                            asyncSocket.OnExceptionalCondition()
-                        elif socketsList is wr :
-                            asyncSocket.OnReadyForWriting()
-                        else :
-                            asyncSocket.OnReadyForReading()
-                        self._socketListRemove(socket, self._handlingList)
-            sec = perf_counter()
-            if sec > timeSec + self._CHECK_SEC_INTERVAL :
-                timeSec = sec
-                for asyncSocket in list(self._asyncSockets.values()) :
-                    if asyncSocket.ExpireTimeSec and \
-                       timeSec > asyncSocket.ExpireTimeSec :
-                        asyncSocket._close(XClosedReason.Timeout)
         self._decThreadsCount()
 
     # ------------------------------------------------------------------------
