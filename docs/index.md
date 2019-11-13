@@ -1328,17 +1328,8 @@ except KeyboardInterrupt :
       pyhtmlTemplateMod.ShowDebug = True
       ```
 
-      In the pages **.pyhtml**, you must use the following instructions:
-
-      | Instruction | Code schema                                                               |
-      |:-----------:| ------------------------------------------------------------------------- |
-      | PY          | `\{{ py }}` *Python code* `{{ end }}`                                      |
-      | IF          | `\{\{ if` *Python condition* `}}` *html bloc* `{{ end }}`                   |
-      | ELIF        | `{{ elif` *Python condition* `\}}` *html bloc* `{{ end }}`                 |
-      | ELSE        | `{{ else }}` *html bloc* `{{ end \}\}`                                      |
-      | FOR         | `{{ for` *identifier* `in` *Python iterator* `}}` *html bloc* `{{ end }}` |
-      | INCLUDE     | `{{ include` *pyhtml_filename* `}}`                                       |
-      | ?           | `{{` *Python expression* `}}`                                             |
+      In the pages **.pyhtml**, you must use special instructions:
+      Please, consult the **[documentation](https://github.com/jczic/MicroWebSrv2#pyhtmltemplate-mod)** on the GitHub project page.
 
       See the **[test.pyhtml](https://github.com/jczic/MicroWebSrv2/blob/master/www/test.pyhtml)** page for an example.
 
