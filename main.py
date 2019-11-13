@@ -172,7 +172,7 @@ mws2.StartManaged()
 # Main program loop until keyboard interrupt,
 try :
     while True :
-        sleep(60)
+        sleep(1)
 except KeyboardInterrupt :
     print()
     mws2.Stop()
