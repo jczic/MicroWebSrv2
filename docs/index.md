@@ -76,6 +76,8 @@ Mostly used on **Pycom WiPy**, **ESP32**, **STM32** on **Pyboard**, ... **Robust
         - [Instance Methods](#websocket-func)
         - [Properties](#websocket-prop)
     - [**PyhtmlTemplate Module**](#pyhtmltemplate-mod)
+      - [Instance Methods](#pyhtmltemplate-func)
+      - [Properties](#pyhtmltemplate-prop)
 - [**Author**](#author)
 - [**License**](#license)
 
@@ -1330,10 +1332,10 @@ except KeyboardInterrupt :
 
       | Instruction | Code schema                                                               |
       |:-----------:| ------------------------------------------------------------------------- |
-      | PY          | `{{ py }}` *Python code* `{{ end }}`                                      |
-      | IF          | `{{ if` *Python condition* `}}` *html bloc* `{{ end }}`                   |
-      | ELIF        | `{{ elif` *Python condition* `}}` *html bloc* `{{ end }}`                 |
-      | ELSE        | `{{ else }}` *html bloc* `{{ end }}`                                      |
+      | PY          | `\{{ py }}` *Python code* `{{ end }}`                                      |
+      | IF          | `\{\{ if` *Python condition* `}}` *html bloc* `{{ end }}`                   |
+      | ELIF        | `{{ elif` *Python condition* `\}}` *html bloc* `{{ end }}`                 |
+      | ELSE        | `{{ else }}` *html bloc* `{{ end \}\}`                                      |
       | FOR         | `{{ for` *identifier* `in` *Python iterator* `}}` *html bloc* `{{ end }}` |
       | INCLUDE     | `{{ include` *pyhtml_filename* `}}`                                       |
       | ?           | `{{` *Python expression* `}}`                                             |
