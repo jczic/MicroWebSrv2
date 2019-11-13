@@ -74,6 +74,8 @@ Mostly used on **Pycom WiPy**, **ESP32**, **STM32** on **Pyboard**, ... **Robust
         - [Instance Methods](#websocket-func)
         - [Properties](#websocket-prop)
     - [**PyhtmlTemplate Module**](#pyhtmltemplate-mod)
+      - [Instance Methods](#pyhtmltemplate-func)
+      - [Properties](#pyhtmltemplate-prop)
 - [**Author**](#author)
 - [**License**](#license)
 
@@ -1315,16 +1317,61 @@ except KeyboardInterrupt :
     <a name="pyhtmltemplate-mod"></a>
     - ## PyhtmlTemplate Module
 
-      **PyhtmlTemplate module** must be loaded first by **microWebSrv2** to process .pyhtml pages.  
+      **PyhtmlTemplate module** must be loaded first by **microWebSrv2** to process **.pyhtml** pages.  
       With it, you will be able to render HTML pages directly integrating Python/MicroPython language.  
       ```python
       from MicroWebSrv2 import *
 
-      MicroWebSrv2.LoadModule('PyhtmlTemplate')
+      pyhtmlTemplateMod = MicroWebSrv2.LoadModule('PyhtmlTemplate')
+      pyhtmlTemplateMod.ShowDebug = True
       ```
 
-      Help coming soon...  
-      (Please check the test.pyhtml page)
+      In the pages **.pyhtml**, you must use the following instructions:
+
+      | Instruction | Code schema                                                                    |
+      |:-----------:| ------------------------------------------------------------------------------ |
+      | PY          | `{{ py }}` *MicroPython code* `{{ end }}`                                      |
+      | IF          | `{{ if` *MicroPython condition* `}}` *html bloc* `{{ end }}`                   |
+      | ELIF        | `{{ elif` *MicroPython condition* `}}` *html bloc* `{{ end }}`                 |
+      | ELSE        | `{{ else }}` *html bloc* `{{ end }}`                                           |
+      | FOR         | `{{ for` *identifier* `in` *MicroPython iterator* `}}` *html bloc* `{{ end }}` |
+      | INCLUDE     | `{{ include` *pyhtml_filename* `}}`                                            |
+      | ?           | `{{` *MicroPython expression* `}}`                                             |
+
+      :cyclone: See the **[test.pyhtml](https://github.com/jczic/MicroWebSrv2/blob/master/www/test.pyhtml)** page for an example.
+
+      ---
+
+      <a name="pyhtmltemplate-func"></a>
+      - ### PyhtmlTemplate module instance methods
+
+        #### :arrow_forward: pyhtmlTemplateMod.SetGlobalVar(...)
+        ```python
+        def SetGlobalVar(self, globalVarName, globalVar)
+        # Defines a global variable accessible by all pyhtml pages.
+        #   - No return value.
+        #   - <globalVarName> must be a not empty string.
+        #   - <globalVar> must be an object or None.
+        # An exception can be raised if <globalVarName> is not correct.
+        ```
+
+        #### :arrow_forward: pyhtmlTemplateMod.GetGlobalVar(...)
+        ```python
+        def GetGlobalVar(self, globalVarName)
+        # Retrieves a global variable accessible by all pyhtml pages.
+        #   - Returns an object or None.
+        #   - <globalVarName> must be a not empty string.
+        # An exception can be raised if <globalVarName> is not correct.
+        ```
+
+        ---
+
+      <a name="pyhtmltemplate-prop"></a>
+      - ### PyhtmlTemplate module properties
+
+        | Name        |  Type  |           Get           |           Set           | Description                       |
+        |-------------|:------:|:-----------------------:|:-----------------------:|-----------------------------------|
+        | `ShowDebug` |  bool  | :ballot_box_with_check: | :ballot_box_with_check: | *Enables debugging on web pages.* |
 
 ---
 
