@@ -2,6 +2,7 @@
 
 from MicroWebSrv2  import *
 from time          import sleep
+from network       import WLAN
 from _thread       import allocate_lock
 
 # ============================================================================
@@ -141,6 +142,9 @@ def OnWSChatClosed(webSocket) :
 # ============================================================================
 # ============================================================================
 
+wlan = WLAN()
+wlan.init()
+
 print()
 
 # Loads the PyhtmlTemplate module globally and configure it,
@@ -176,6 +180,7 @@ try :
 except KeyboardInterrupt :
     print()
     mws2.Stop()
+    wlan.deinit()
     print('Bye')
     print()
 
