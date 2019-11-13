@@ -1328,7 +1328,7 @@ except KeyboardInterrupt :
       pyhtmlTemplateMod.ShowDebug = True
       ```
 
-      In the pages **.pyhtml**, you must use special instructions:
+      In the pages **.pyhtml**, you must use special instructions:  
       Please, consult the **[documentation](https://github.com/jczic/MicroWebSrv2#pyhtmltemplate-mod)** on the GitHub project page.
 
       See the **[test.pyhtml](https://github.com/jczic/MicroWebSrv2/blob/master/www/test.pyhtml)** page for an example.
