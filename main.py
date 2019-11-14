@@ -141,12 +141,6 @@ def OnWSChatClosed(webSocket) :
 # ============================================================================
 # ============================================================================
 
-try :
-    from network import WLAN
-    WLAN().init()
-except :
-    pass
-
 print()
 
 # Loads the PyhtmlTemplate module globally and configure it,
