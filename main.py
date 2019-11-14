@@ -2,7 +2,6 @@
 
 from MicroWebSrv2  import *
 from time          import sleep
-from network       import WLAN
 from _thread       import allocate_lock
 
 # ============================================================================
@@ -142,8 +141,11 @@ def OnWSChatClosed(webSocket) :
 # ============================================================================
 # ============================================================================
 
-wlan = WLAN()
-wlan.init()
+try :
+    from network import WLAN
+    WLAN().init()
+except :
+    pass
 
 print()
 
@@ -175,14 +177,16 @@ mws2.StartManaged()
 
 # Main program loop until keyboard interrupt,
 try :
-    while True :
+    while mws2.IsRunning :
         sleep(1)
 except KeyboardInterrupt :
-    print()
-    mws2.Stop()
-    wlan.deinit()
-    print('Bye')
-    print()
+    pass
+
+# End,
+print()
+mws2.Stop()
+print('Bye')
+print()
 
 # ============================================================================
 # ============================================================================
