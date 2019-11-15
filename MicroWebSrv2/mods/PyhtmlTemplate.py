@@ -174,40 +174,32 @@ class CodeTemplate :
     # ------------------------------------------------------------------------
 
     def _parseBloc(self, execute) :
-        while self._pos <= self._endPos :
-            c = self._code[self._pos]
-            if c == CodeTemplate.TOKEN_OPEN[0] and \
-                self._code[ self._pos : self._pos + CodeTemplate.TOKEN_OPEN_LEN ] == CodeTemplate.TOKEN_OPEN :
-                self._pos    += CodeTemplate.TOKEN_OPEN_LEN
-                tokenContent  = ''
-                x             = self._pos
-                while True :
-                    if x > self._endPos :
-                        raise CodeTemplateException("%s is missing (line %s)" % (CodeTemplate.TOKEN_CLOSE, self._line))
-                    c = self._code[x]
-                    if c == CodeTemplate.TOKEN_CLOSE[0] and \
-                       self._code[ x : x + CodeTemplate.TOKEN_CLOSE_LEN ] == CodeTemplate.TOKEN_CLOSE :
-                       self._pos = x + CodeTemplate.TOKEN_CLOSE_LEN
-                       break
-                    elif c == '\n' :
-                        self._line += 1
-                    tokenContent += c
-                    x            += 1
-                newTokenToProcess = self._processToken(tokenContent, execute)
-                if newTokenToProcess is not None :
-                    return newTokenToProcess
-                continue
-            elif c == '\n' :
-                self._line += 1
+        while True :
+            idx = self._code.find(CodeTemplate.TOKEN_OPEN, self._pos)
+            end = (idx < 0)
+            if end :
+                idx = self._endPos+1
+            code        = self._code[self._pos:idx]
+            self._line += code.count('\n')
             if execute :
-                self._rendered += c
-            self._pos += 1
-        return None
+                self._rendered += code
+            if end :
+                self._pos = idx
+                return None
+            self._pos = idx + CodeTemplate.TOKEN_OPEN_LEN
+            idx       = self._code.find(CodeTemplate.TOKEN_CLOSE, self._pos)
+            if idx < 0 :
+                raise CodeTemplateException('"%s" is required but the end of code has been found' % CodeTemplate.TOKEN_CLOSE)
+            tokenContent       = self._code[self._pos:idx].strip()
+            self._line        += tokenContent.count('\n')
+            self._pos          = idx + CodeTemplate.TOKEN_CLOSE_LEN
+            newTokenToProcess  = self._processToken(tokenContent, execute)
+            if newTokenToProcess is not None :
+                return newTokenToProcess
 
     # ------------------------------------------------------------------------
 
     def _processToken(self, tokenContent, execute) :
-        tokenContent = tokenContent.strip()
         parts        = tokenContent.split(' ', 1)
         instructName = parts[0].strip()
         instructBody = parts[1].strip() if len(parts) > 1 else None
@@ -236,39 +228,21 @@ class CodeTemplate :
         if instructionBody is not None :
             raise CodeTemplateException( 'Instruction "%s" is invalid (line %s)'
                                          % (CodeTemplate.INSTRUCTION_PYTHON, self._line) )
-        pyCode = ''
-        while True :
-            if self._pos > self._endPos :
-                raise CodeTemplateException( '"%s" instruction is missing (line %s)'
-                                             % (CodeTemplate.INSTRUCTION_END, self._line) )
-            c = self._code[self._pos]
-            if c == CodeTemplate.TOKEN_OPEN[0] and \
-               self._code[ self._pos : self._pos + CodeTemplate.TOKEN_OPEN_LEN ] == CodeTemplate.TOKEN_OPEN :
-                self._pos    += CodeTemplate.TOKEN_OPEN_LEN
-                tokenContent  = ''
-                x             = self._pos
-                while True :
-                    if x > self._endPos :
-                        raise CodeTemplateException("%s is missing (line %s)" % (CodeTemplate.TOKEN_CLOSE, self._line))
-                    c = self._code[x]
-                    if c == CodeTemplate.TOKEN_CLOSE[0] and \
-                       self._code[ x : x + CodeTemplate.TOKEN_CLOSE_LEN ] == CodeTemplate.TOKEN_CLOSE :
-                       self._pos = x + CodeTemplate.TOKEN_CLOSE_LEN
-                       break
-                    elif c == '\n' :
-                        self._line += 1
-                    tokenContent += c
-                    x            += 1
-                tokenContent = tokenContent.strip()
-                if tokenContent == CodeTemplate.INSTRUCTION_END :
-                    break
-                raise CodeTemplateException( '"%s" is a bad instruction in a python bloc (line %s)'
-                                             % (tokenContent, self._line) )             
-            elif c == '\n' :
-                self._line += 1
-            if execute :
-                pyCode += c
-            self._pos += 1
+        idx = self._code.find(CodeTemplate.TOKEN_OPEN, self._pos)
+        if idx < 0 :
+            raise CodeTemplateException('"%s" is required but the end of code has been found' % CodeTemplate.TOKEN_OPEN)
+        pyCode      = self._code[self._pos:idx]
+        self._line += pyCode.count('\n')
+        self._pos   = idx + CodeTemplate.TOKEN_OPEN_LEN
+        idx         = self._code.find(CodeTemplate.TOKEN_CLOSE, self._pos)
+        if idx < 0 :
+            raise CodeTemplateException('"%s" is required but the end of code has been found' % CodeTemplate.TOKEN_CLOSE)
+        tokenContent  = self._code[self._pos:idx].strip()
+        self._line   += tokenContent.count('\n')
+        self._pos     = idx + CodeTemplate.TOKEN_CLOSE_LEN
+        if tokenContent != CodeTemplate.INSTRUCTION_END :
+            raise CodeTemplateException( '"%s" is a bad instruction in a python bloc (line %s)'
+                                         % (tokenContent, self._line) )
         if execute :
             lines  = pyCode.split('\n')
             indent = '' 
@@ -280,11 +254,13 @@ class CodeTemplate :
                         else :
                             break
                     break
-            pyCode = ''
-            for line in lines :
-                if line.find(indent) == 0 :
-                    line = line[len(indent):]
-                pyCode += line + '\n'
+            indentLen = len(indent)
+            for i in range(len(lines)) :
+                if lines[i].startswith(indent) :
+                    lines[i] = lines[i][indentLen:] + '\n'
+                else :
+                    lines[i] += '\n'
+            pyCode = ''.join(lines)
             try :
                 exec(pyCode, self._pyGlobalVars, self._pyLocalVars)
             except Exception as ex :
