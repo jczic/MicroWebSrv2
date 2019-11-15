@@ -297,7 +297,7 @@ except KeyboardInterrupt :
           mws2.RequestsTimeoutSec = 10
           ```
 
-        - If you want to intercept logs to process them, you must set the [**OnLoggin**](#mws2-onlogging) callback.
+        - If you want to intercept logs to process them, you must set the [**OnLogging**](#mws2-onlogging) callback.
           ```python
           def OnMWS2Logging(microWebSrv2, msg, msgType) :
               print('Log from custom function: %s' % msg)
