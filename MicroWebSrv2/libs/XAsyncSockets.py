@@ -136,7 +136,7 @@ class XAsyncSocketsPool :
                            timeSec > asyncSocket.ExpireTimeSec :
                             asyncSocket._close(XClosedReason.Timeout)
             except KeyboardInterrupt :
-                break
+                self._processing = False
         self._decThreadsCount()
 
     # ------------------------------------------------------------------------
@@ -201,7 +201,10 @@ class XAsyncSocketsPool :
             try :
                 for i in range(threadsCount) :
                     start_new_thread(self._processWaitEvents, ())
+                while self._processing and self._threadsCount < threadsCount :
+                    sleep(0.001)
             except :
+                self._processing = False
                 raise XAsyncSocketsPoolException('AsyncWaitEvents : Fatal error to create new threads...')
         else :
             self._processWaitEvents()
@@ -212,6 +215,12 @@ class XAsyncSocketsPool :
         self._processing = False
         while self._threadsCount :
             sleep(0.001)
+
+    # ------------------------------------------------------------------------
+
+    @property
+    def WaitEventsProcessing(self) :
+        return (self._threadsCount > 0)
 
 # ============================================================================
 # ===( XClosedReason )========================================================

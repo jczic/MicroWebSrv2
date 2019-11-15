@@ -375,7 +375,8 @@ class MicroWebSrv2 :
 
     @property
     def IsRunning(self) :
-        return (self._xasSrv is not None)
+        return ( self._xasPool.WaitEventsProcessing and \
+                 self._xasSrv is not None )
 
     # ------------------------------------------------------------------------
 
