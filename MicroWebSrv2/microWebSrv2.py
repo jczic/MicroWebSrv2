@@ -61,6 +61,8 @@ class MicroWebSrv2 :
         "<" : "&lt;"
     }
 
+    _STAT_MODE_DIR = 1 << 14
+
     DEBUG        = 0x00
     INFO         = 0x01
     WARNING      = 0x02
@@ -100,11 +102,15 @@ class MicroWebSrv2 :
     def _physPathExists(physPath) :
         try :
             stat(physPath)
-        except OSError as ose :
-            return (ose.args[0] == 22)
+            return True
         except :
             return False
-        return True
+
+    # ------------------------------------------------------------------------
+
+    @staticmethod
+    def _physPathIsDir(physPath) :
+        return (stat(physPath)[0] & MicroWebSrv2._STAT_MODE_DIR != 0)
 
     # ------------------------------------------------------------------------
 
@@ -249,19 +255,20 @@ class MicroWebSrv2 :
     def ResolvePhysicalPath(self, urlPath) :
         if not isinstance(urlPath, str) or len(urlPath) == 0 :
             raise ValueError('"urlPath" must be a not empty string.')
-        physPath = self._rootPath + urlPath.replace('..', '/')
-        endSlash = physPath.endswith('/')
-        physDir  = physPath + ('/' if not endSlash else '')
-        if MicroWebSrv2._physPathExists(physDir) :
-            for filename in MicroWebSrv2._DEFAULT_PAGES :
-                p = physDir + filename
-                if MicroWebSrv2._physPathExists(p) :
-                    return p
-            return physDir
-        elif endSlash :
-            return None
-        if MicroWebSrv2._physPathExists(physPath) :
-            return physPath
+        try :
+            physPath = self._rootPath + urlPath.replace('..', '/')
+            if MicroWebSrv2._physPathIsDir(physPath) :
+                if not physPath.endswith('/') :
+                    physPath += '/'
+                for filename in MicroWebSrv2._DEFAULT_PAGES :
+                    p = physPath + filename
+                    if MicroWebSrv2._physPathExists(p) :
+                        return p
+                return physPath
+            elif not physPath.endswith('/') :
+                return physPath
+        except :
+            pass
         return None
 
     # ------------------------------------------------------------------------
