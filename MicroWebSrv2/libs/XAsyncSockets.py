@@ -113,6 +113,8 @@ class XAsyncSocketsPool :
                                          self._writeList,
                                          self._readList,
                                          self._CHECK_SEC_INTERVAL )
+                except KeyboardInterrupt as ex :
+                    raise ex
                 except :
                     continue
                 if not self._processing :
