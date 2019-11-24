@@ -256,7 +256,17 @@ class MicroWebSrv2 :
         if not isinstance(urlPath, str) or len(urlPath) == 0 :
             raise ValueError('"urlPath" must be a not empty string.')
         try :
-            physPath = self._rootPath + urlPath.replace('..', '/')
+            # Remove trailing '/' in self._rootPath
+            if self._rootPath.endswith('/') :
+                self._rootPath = self._rootPath[:-1]
+
+            # If urlPath = '/', do not add an extra '/' at the end of `physPath`
+            physPath = ''
+            if urlPath != '/' :
+                physPath = self._rootPath + urlPath.replace('..', '/')
+            else :
+                physPath = self._rootPath
+
             if MicroWebSrv2._physPathIsDir(physPath) :
                 if not physPath.endswith('/') :
                     physPath += '/'
