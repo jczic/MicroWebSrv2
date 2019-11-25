@@ -122,6 +122,7 @@ class HttpResponse :
         self._stream         = None
         self._sendingBuf     = None
         self._hdrSent        = False
+        self._onSent         = None
 
     # ------------------------------------------------------------------------
 
@@ -175,6 +176,12 @@ class HttpResponse :
                 self._request._waitForRecvRequest()
             else :
                 self._xasCli.Close()
+            if self._onSent :
+                try :
+                    self._onSent(self._mws2, self)
+                except Exception as ex :
+                    self._mws2.Log( 'Exception raised from "Response.OnSent" handler: %s' % ex,
+                                    self._mws2.ERROR )
 
     # ------------------------------------------------------------------------
 
@@ -508,6 +515,18 @@ class HttpResponse :
     @property
     def HeadersSent(self) :
         return self._hdrSent
+
+    # ------------------------------------------------------------------------
+
+    @property
+    def OnSent(self) :
+        return self._onSent
+
+    @OnSent.setter
+    def OnSent(self, value) :
+        if type(value) is not type(lambda x:x) :
+            raise ValueError('"OnSent" must be a function.')
+        self._onSent = value
 
 # ============================================================================
 # ============================================================================
