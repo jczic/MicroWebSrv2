@@ -40,7 +40,8 @@ class PyhtmlTemplate :
     # ------------------------------------------------------------------------
 
     def OnRequest(self, microWebSrv2, request) :
-        if request.Method == 'GET' and request.Path.lower().endswith('.pyhtml') :
+        if (request.Method == 'GET' or request.Method == 'HEAD') and \
+           request.Path.lower().endswith('.pyhtml') :
             filepath = microWebSrv2.ResolvePhysicalPath(request.Path)
             if filepath :
                 try :
