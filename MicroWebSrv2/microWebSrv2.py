@@ -257,19 +257,16 @@ class MicroWebSrv2 :
             raise ValueError('"urlPath" must be a not empty string.')
         try :
             physPath = self._rootPath + urlPath.replace('..', '/')
+            if physPath.endswith('/') :
+                physPath = physPath[:-1]
             if MicroWebSrv2._physPathIsDir(physPath) :
-                if not physPath.endswith('/') :
-                    physPath += '/'
                 for filename in MicroWebSrv2._DEFAULT_PAGES :
-                    p = physPath + filename
+                    p = physPath + '/' + filename
                     if MicroWebSrv2._physPathExists(p) :
                         return p
-                return physPath
-            elif not physPath.endswith('/') :
-                return physPath
+            return physPath
         except :
-            pass
-        return None
+            return None
 
     # ------------------------------------------------------------------------
 
@@ -477,7 +474,7 @@ class MicroWebSrv2 :
         if not isinstance(value, str) or len(value) == 0 :
             raise ValueError('"RootPath" must be a not empty string.')
         self._validateChangeConf('"RootPath"')
-        self._rootPath = value
+        self._rootPath = (value[:-1] if value.endswith('/') else value)
 
     # ------------------------------------------------------------------------
 
