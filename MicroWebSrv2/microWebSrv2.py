@@ -123,7 +123,7 @@ class MicroWebSrv2 :
         try :
             modPath  = MicroWebSrv2.__module__.split('microWebSrv2')[0] \
                      + ('mods.%s' % modName)
-            module   = __import__(modPath, { }, { }, [modName])
+            module   = getattr(__import__(modPath).mods, modName)
             modClass = getattr(module, modName)
             if type(modClass) is not type :
                 raise Exception
