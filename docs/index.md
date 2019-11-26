@@ -694,6 +694,8 @@ except KeyboardInterrupt :
       | `RootPath`                |                 str                 | Yes | Yes | *Path of the root folder that contains the web files.*                               |
       | `RequestsTimeoutSec`      |                 int                 | Yes | Yes | *Timeout in seconds to waiting the next data reception of requests.*                 |
       | `NotFoundURL`             |             str or None             | Yes | Yes | *URL used to redirects requests not found.*                                          |
+      | `AllowAllOrigins`         |                 bool                | Yes | Yes | *Indicates that all resource origins of requests are allowed.*                       |
+      | `CORSAllowAll`            |                 bool                | Yes | Yes | *Allows all CORS values for the preflight requests (OPTIONS).*                       |
       | `OnLogging`               | [callback](#mws2-onlogging) or None | Yes | Yes | *Callback function when the server logs information.*                                |
 
       > **Definition of the above callback functions:**
@@ -1151,17 +1153,18 @@ except KeyboardInterrupt :
     <a name="response-prop"></a>
     - ### HttpResponse properties
 
-      | Name             |              Type                    |           Get           |           Set           | Description                                                                                 |
-      |------------------|:------------------------------------:|:-----------------------:|:-----------------------:|---------------------------------------------------------------------------------------------|
-      | `Request`        |    [HttpRequest](#request-class)     | Yes |            -            | *Http request related to this response.*                                                    |
-      | `UserAddress`    |               tuple                  | Yes |            -            | *User remote address of the http connection such as a tuple of `(str_ip_addr, int_port)`.*  |
-      | `IsSSL`          |                bool                  | Yes |            -            | *Indicates that the http connection is secured by SSL/TLS security layer with certificate.* |
-      | `AllowCaching`   |                bool                  | Yes | Yes | *Indicates to the user the possible caching of this response.*                              |
-      | `ContentType`    |            str or None               | Yes | Yes | *Type of the content of this response.*                                                     |
-      | `ContentCharset` |            str or None               | Yes | Yes | *Encoding charset used for the content of this response.*                                   |
-      | `ContentLength`  |                int                   | Yes | Yes | *Length of the content of this response.*                                                   |
-      | `HeadersSent`    |                bool                  | Yes |            -            | *Indicates that response http headers was already sent.*                                    |
-      | `OnSent`         | [callback](#response-onsent) or None | Yes | Yes | *Callback function when response is fully sent.*                                            |
+      | Name                       |              Type                    |           Get           |           Set           | Description                                                                                 |
+      |----------------------------|:------------------------------------:|:-----------------------:|:-----------------------:|---------------------------------------------------------------------------------------------|
+      | `Request`                  |    [HttpRequest](#request-class)     | Yes |            -            | *Http request related to this response.*                                                    |
+      | `UserAddress`              |               tuple                  | Yes |            -            | *User remote address of the http connection such as a tuple of `(str_ip_addr, int_port)`.*  |
+      | `IsSSL`                    |                bool                  | Yes |            -            | *Indicates that the http connection is secured by SSL/TLS security layer with certificate.* |
+      | `AllowCaching`             |                bool                  | Yes | Yes | *Indicates to the user the possible caching of this response.*                              |
+      | `AccessControlAllowOrigin` |            str or None               | Yes | Yes | *Indicates to the user the allowed resource origin.*                                        |
+      | `ContentType`              |            str or None               | Yes | Yes | *Type of the content of this response.*                                                     |
+      | `ContentCharset`           |            str or None               | Yes | Yes | *Encoding charset used for the content of this response.*                                   |
+      | `ContentLength`            |                int                   | Yes | Yes | *Length of the content of this response.*                                                   |
+      | `HeadersSent`              |                bool                  | Yes |            -            | *Indicates that response http headers was already sent.*                                    |
+      | `OnSent`                   | [callback](#response-onsent) or None | Yes | Yes | *Callback function when response is fully sent.*                                            |
 
       > **Definition of the above callback functions:**
 

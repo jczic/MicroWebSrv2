@@ -692,6 +692,8 @@ except KeyboardInterrupt :
       | `RootPath`                |                 str                 | :ballot_box_with_check: | :ballot_box_with_check: | *Path of the root folder that contains the web files.*                               |
       | `RequestsTimeoutSec`      |                 int                 | :ballot_box_with_check: | :ballot_box_with_check: | *Timeout in seconds to waiting the next data reception of requests.*                 |
       | `NotFoundURL`             |             str or None             | :ballot_box_with_check: | :ballot_box_with_check: | *URL used to redirects requests not found.*                                          |
+      | `AllowAllOrigins`         |                 bool                | :ballot_box_with_check: | :ballot_box_with_check: | *Indicates that all resource origins of requests are allowed.*                       |
+      | `CORSAllowAll`            |                 bool                | :ballot_box_with_check: | :ballot_box_with_check: | *Allows all CORS values for the preflight requests (OPTIONS).*                       |
       | `OnLogging`               | [callback](#mws2-onlogging) or None | :ballot_box_with_check: | :ballot_box_with_check: | *Callback function when the server logs information.*                                |
 
       > **Definition of the above callback functions:**
@@ -1149,17 +1151,18 @@ except KeyboardInterrupt :
     <a name="response-prop"></a>
     - ### HttpResponse properties
 
-      | Name             |              Type                    |           Get           |           Set           | Description                                                                                 |
-      |------------------|:------------------------------------:|:-----------------------:|:-----------------------:|---------------------------------------------------------------------------------------------|
-      | `Request`        | [HttpRequest](#request-class)        | :ballot_box_with_check: |            -            | *Http request related to this response.*                                                    |
-      | `UserAddress`    |             tuple                    | :ballot_box_with_check: |            -            | *User remote address of the http connection such as a tuple of `(str_ip_addr, int_port)`.*  |
-      | `IsSSL`          |              bool                    | :ballot_box_with_check: |            -            | *Indicates that the http connection is secured by SSL/TLS security layer with certificate.* |
-      | `AllowCaching`   |              bool                    | :ballot_box_with_check: | :ballot_box_with_check: | *Indicates to the user the possible caching of this response.*                              |
-      | `ContentType`    |          str or None                 | :ballot_box_with_check: | :ballot_box_with_check: | *Type of the content of this response.*                                                     |
-      | `ContentCharset` |          str or None                 | :ballot_box_with_check: | :ballot_box_with_check: | *Encoding charset used for the content of this response.*                                   |
-      | `ContentLength`  |              int                     | :ballot_box_with_check: | :ballot_box_with_check: | *Length of the content of this response.*                                                   |
-      | `HeadersSent`    |              bool                    | :ballot_box_with_check: |            -            | *Indicates that response http headers was already sent.*                                    |
-      | `OnSent`         | [callback](#response-onsent) or None | :ballot_box_with_check: | :ballot_box_with_check: | *Callback function when response is fully sent.*                                            |
+      | Name                       |              Type                    |           Get           |           Set           | Description                                                                                 |
+      |----------------------------|:------------------------------------:|:-----------------------:|:-----------------------:|---------------------------------------------------------------------------------------------|
+      | `Request`                  | [HttpRequest](#request-class)        | :ballot_box_with_check: |            -            | *Http request related to this response.*                                                    |
+      | `UserAddress`              |             tuple                    | :ballot_box_with_check: |            -            | *User remote address of the http connection such as a tuple of `(str_ip_addr, int_port)`.*  |
+      | `IsSSL`                    |              bool                    | :ballot_box_with_check: |            -            | *Indicates that the http connection is secured by SSL/TLS security layer with certificate.* |
+      | `AllowCaching`             |              bool                    | :ballot_box_with_check: | :ballot_box_with_check: | *Indicates to the user the possible caching of this response.*                              |
+      | `AccessControlAllowOrigin` |          str or None                 | :ballot_box_with_check: | :ballot_box_with_check: | *Indicates to the user the allowed resource origin.*                                        |
+      | `ContentType`              |          str or None                 | :ballot_box_with_check: | :ballot_box_with_check: | *Type of the content of this response.*                                                     |
+      | `ContentCharset`           |          str or None                 | :ballot_box_with_check: | :ballot_box_with_check: | *Encoding charset used for the content of this response.*                                   |
+      | `ContentLength`            |              int                     | :ballot_box_with_check: | :ballot_box_with_check: | *Length of the content of this response.*                                                   |
+      | `HeadersSent`              |              bool                    | :ballot_box_with_check: |            -            | *Indicates that response http headers was already sent.*                                    |
+      | `OnSent`                   | [callback](#response-onsent) or None | :ballot_box_with_check: | :ballot_box_with_check: | *Callback function when response is fully sent.*                                            |
 
       > **Definition of the above callback functions:**
 

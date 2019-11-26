@@ -72,11 +72,12 @@ def RegisterRoute(handler, method, routePath, name=None) :
 
 def ResolveRoute(method, path) :
     try :
+        path = path.lower()
         if len(path) > 1 and path.endswith('/') :
             path = path[:-1]
         for regRoute in _registeredRoutes :
             if regRoute.Method == method :
-                reMatch = regRoute.Regex.match(path.lower())
+                reMatch = regRoute.Regex.match(path)
                 if reMatch :
                     if not regRoute.ArgNames :
                         return RouteResult(regRoute)

@@ -111,18 +111,19 @@ class HttpResponse :
     # ------------------------------------------------------------------------
 
     def __init__(self, microWebSrv2, request) :
-        self._mws2           = microWebSrv2
-        self._request        = request
-        self._xasCli         = request.XAsyncTCPClient
-        self._headers        = { }
-        self._allowCaching   = False
-        self._contentType    = None
-        self._contentCharset = None
-        self._contentLength  = 0
-        self._stream         = None
-        self._sendingBuf     = None
-        self._hdrSent        = False
-        self._onSent         = None
+        self._mws2            = microWebSrv2
+        self._request         = request
+        self._xasCli          = request.XAsyncTCPClient
+        self._headers         = { }
+        self._allowCaching    = False
+        self._acAllowOrigin   = None
+        self._contentType     = None
+        self._contentCharset  = None
+        self._contentLength   = 0
+        self._stream          = None
+        self._sendingBuf      = None
+        self._hdrSent         = False
+        self._onSent          = None
 
     # ------------------------------------------------------------------------
 
@@ -207,6 +208,10 @@ class HttpResponse :
                             code,
                             reason ),
                         self._mws2.DEBUG )
+        if self._mws2.AllowAllOrigins :
+            self._acAllowOrigin = self._request.Origin
+        if self._acAllowOrigin :
+            self.SetHeader('Access-Control-Allow-Origin', self._acAllowOrigin)
         self.SetHeader('Server', 'MicroWebSrv2 by JC`zic')
         hdr = ''
         for n in self._headers :
@@ -473,6 +478,18 @@ class HttpResponse :
         if not isinstance(value, bool) :
             raise ValueError('"AllowCaching" must be a boolean.')
         self._allowCaching = value
+
+    # ------------------------------------------------------------------------
+
+    @property
+    def AccessControlAllowOrigin(self) :
+        return self._acAllowOrigin
+
+    @AccessControlAllowOrigin.setter
+    def AccessControlAllowOrigin(self, value) :
+        if value is not None and not isinstance(value, str) :
+            raise ValueError('"AccessControlAllowOrigin" must be a string or None.')
+        self._acAllowOrigin = value
 
     # ------------------------------------------------------------------------
 

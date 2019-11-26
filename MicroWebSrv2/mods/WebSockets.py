@@ -33,13 +33,10 @@ class WebSockets :
                 key      = request.GetHeader('Sec-Websocket-Key')
                 if key :
                     try :
-                        origin     = request.Origin
                         key       += WebSockets._HANDSHAKE_SIGN
                         sec        = sha1(key.encode()).digest()
                         sec        = b2a_base64(sec).decode().strip()
                         protocols  = request.GetHeader('Sec-WebSocket-Protocol')
-                        if origin :
-                            response.SetHeader('Access-Control-Allow-Origin', origin)
                         response.SetHeader('Sec-WebSocket-Accept', sec)
                         if protocols and self._onWebSocketProtocol :
                             protocols = [x.strip() for x in protocols.split(',')]

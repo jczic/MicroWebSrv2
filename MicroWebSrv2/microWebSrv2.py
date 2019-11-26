@@ -81,19 +81,21 @@ class MicroWebSrv2 :
     # ------------------------------------------------------------------------
 
     def __init__(self) :
-        self._backlog       = None
-        self._slotsCount    = None
-        self._slotsSize     = None
-        self._keepAlloc     = None
-        self._maxContentLen = None
-        self._bindAddr      = ('0.0.0.0', 80)
-        self._sslContext    = None
-        self._rootPath      = 'www'
-        self._timeoutSec    = 2
-        self._notFoundURL   = None
-        self._onLogging     = None
-        self._xasSrv        = None
-        self._xasPool       = None
+        self._backlog         = None
+        self._slotsCount      = None
+        self._slotsSize       = None
+        self._keepAlloc       = None
+        self._maxContentLen   = None
+        self._bindAddr        = ('0.0.0.0', 80)
+        self._sslContext      = None
+        self._rootPath        = 'www'
+        self._timeoutSec      = 2
+        self._notFoundURL     = None
+        self._allowAllOrigins = False
+        self._corsAllowAll    = False
+        self._onLogging       = None
+        self._xasSrv          = None
+        self._xasPool         = None
         self.SetNormalConfig()
 
     # ------------------------------------------------------------------------
@@ -499,6 +501,30 @@ class MicroWebSrv2 :
         if value is not None and not isinstance(value, str) :
             raise ValueError('"NotFoundURL" must be a string or None.')
         self._notFoundURL = value
+
+    # ------------------------------------------------------------------------
+
+    @property
+    def AllowAllOrigins(self) :
+        return self._allowAllOrigins
+
+    @AllowAllOrigins.setter
+    def AllowAllOrigins(self, value) :
+        if not isinstance(value, bool) :
+            raise ValueError('"AllowAllOrigins" must be a boolean.')
+        self._allowAllOrigins = value
+
+    # ------------------------------------------------------------------------
+
+    @property
+    def CORSAllowAll(self) :
+        return self._corsAllowAll
+
+    @CORSAllowAll.setter
+    def CORSAllowAll(self, value) :
+        if not isinstance(value, bool) :
+            raise ValueError('"CORSAllowAll" must be a boolean.')
+        self._corsAllowAll = value
 
     # ------------------------------------------------------------------------
 
