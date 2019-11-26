@@ -128,6 +128,8 @@ Also, architecture makes its integration very easy and the source code, **MIT li
 
 - Play with **AjAX** requests to interact quickly with a web application.
 
+- Define the **origin** of resources and allow all values of **CORS** pre-flight requests.
+
 - Verify that a request is successfully **authenticated** by the **Basic** or **Bearer** method.
 
 - Reduce the number of persistent connections per web client with **keep-alive mode** support.
@@ -695,7 +697,7 @@ except KeyboardInterrupt :
       | `RequestsTimeoutSec`      |                 int                 | Yes | Yes | *Timeout in seconds to waiting the next data reception of requests.*                 |
       | `NotFoundURL`             |             str or None             | Yes | Yes | *URL used to redirects requests not found.*                                          |
       | `AllowAllOrigins`         |                 bool                | Yes | Yes | *Indicates that all resource origins of requests are allowed.*                       |
-      | `CORSAllowAll`            |                 bool                | Yes | Yes | *Allows all CORS values for the preflight requests (OPTIONS).*                       |
+      | `CORSAllowAll`            |                 bool                | Yes | Yes | *Allows all CORS values for the pre-flight requests (OPTIONS).*                      |
       | `OnLogging`               | [callback](#mws2-onlogging) or None | Yes | Yes | *Callback function when the server logs information.*                                |
 
       > **Definition of the above callback functions:**
