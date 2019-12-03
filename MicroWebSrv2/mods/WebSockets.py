@@ -182,12 +182,12 @@ class WebSocket :
                 self._close(1002, 'Protocol error (bad frame in the context)')
                 return
 
-            def endOfHeader(maskingKey) :
+            def endOfHeader(dataLen, maskingKey) :
 
                 def onPayloadDataRecv(xasCli, data, arg) :
 
                     if maskingKey :
-                        for i in range(length) :
+                        for i in range(dataLen) :
                             data[i] ^= maskingKey[i%4]
                     
                     if self._currentMsgData :
@@ -246,7 +246,7 @@ class WebSocket :
                 if not isCtrlFrame :
                     # Message frame or continuation frame,
                     if self._maxRecvMsgLen :
-                        l = length
+                        l = dataLen
                         if self._currentMsgData :
                             l += len(self._currentMsgData)
                         if l > self._maxRecvMsgLen :
@@ -258,35 +258,35 @@ class WebSocket :
                     elif opcode == WebSocket._OP_FRAME_BIN :
                         self._currentMsgType = WebSocket._MSG_TYPE_BIN
                     try :
-                        self._recvData(onPayloadDataRecv, length)
+                        self._recvData(onPayloadDataRecv, dataLen)
                     except :
                         # Frame is too large for memory allocation,
                         self._close(1009, 'Frame is too large to be processed')
                 elif opcode == WebSocket._OP_FRAME_PING :
                     # Ping control frame,
-                    if length > 0 :
+                    if dataLen > 0 :
                         def onPingDataRecv(xasCli, data, arg) :
                             data = bytearray(data)
                             self._sendFrame(WebSocket._OP_FRAME_PONG, data)
                             self._waitFrame()
-                        self._recvData(onPingDataRecv, length)
+                        self._recvData(onPingDataRecv, dataLen)
                     else :
                         self._sendFrame(WebSocket._OP_FRAME_PONG)
                         self._waitFrame()
                 elif opcode == WebSocket._OP_FRAME_PONG :
                     # Pong control frame,
-                    if length > 0 :
+                    if dataLen > 0 :
                         def onPongDataRecv(xasCli, data, arg) :
                             self._waitFrame()
-                        self._recvData(onPongDataRecv, length)
+                        self._recvData(onPongDataRecv, dataLen)
                     else :
                         self._waitFrame()
                 elif opcode == WebSocket._OP_FRAME_CLOSE :
                     # Close control frame,')
-                    if length > 0 :
+                    if dataLen > 0 :
                         def onCloseDataRecv(xasCli, data, arg) :
                             self._close()
-                        self._recvData(onCloseDataRecv, length)
+                        self._recvData(onCloseDataRecv, dataLen)
                     else :
                         self._close()
                 else :
@@ -295,16 +295,16 @@ class WebSocket :
 
                 # - End of endOfHeader -
 
-            def getMaskingKey() :
+            def getMaskingKey(dataLen) :
                 
                 if masked :
                     # Frame is masked by the next 4 bytes key,
                     def onMaskingKeyRecv(xasCli, data, arg) :
-                        endOfHeader(maskingKey=bytes(data))
+                        endOfHeader(dataLen=dataLen, maskingKey=bytes(data))
                     self._recvData(onMaskingKeyRecv, 4)
                 else :
                     # Frame is not masked,
-                    endOfHeader(maskingKey=None)
+                    endOfHeader(dataLen=dataLen, maskingKey=None)
 
                 # - End of getMaskingKey -
 
@@ -313,7 +313,7 @@ class WebSocket :
                 self._close(1002, 'Protocol error (payload data required)')
             elif length <= 0x7D :
                 # Frame length <= 0x7D,
-                getMaskingKey()
+                getMaskingKey(dataLen=length)
             elif isCtrlFrame :
                 # Bad frame for length of control frame > 0x7D,
                 self._close(1002, 'Protocol error (bad control frame length)')
@@ -325,7 +325,7 @@ class WebSocket :
                         # Bad frame for 16 bits length < 0x7E,
                         self._close(1002, 'Protocol error (bad length encoding)')
                     else :
-                        getMaskingKey()
+                        getMaskingKey(dataLen=length)
                 self._recvData(onLenExt1Recv, 2)
             else :
                 # Frame length is encoded on next 64 bits.
