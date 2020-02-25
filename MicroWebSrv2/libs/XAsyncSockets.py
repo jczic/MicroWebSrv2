@@ -38,27 +38,24 @@ class XAsyncSocketsPool :
     # ------------------------------------------------------------------------
 
     def _incThreadsCount(self) :
-        self._opLock.acquire()
-        self._threadsCount += 1
-        self._opLock.release()
+        with self._opLock :
+            self._threadsCount += 1
 
     # ------------------------------------------------------------------------
 
     def _decThreadsCount(self) :
-        self._opLock.acquire()
-        self._threadsCount -= 1
-        self._opLock.release()
+        with self._opLock :
+            self._threadsCount -= 1
 
     # ------------------------------------------------------------------------
 
     def _addSocket(self, socket, asyncSocket) :
         if socket :
             socketno = socket.fileno()
-            self._opLock.acquire()
-            ok = (socketno not in self._asyncSockets)
-            if ok :
-                self._asyncSockets[socketno] = asyncSocket
-            self._opLock.release()
+            with self._opLock :
+                ok = (socketno not in self._asyncSockets)
+                if ok :
+                    self._asyncSockets[socketno] = asyncSocket
             return ok
         return False
 
@@ -67,36 +64,35 @@ class XAsyncSocketsPool :
     def _removeSocket(self, socket) :
         if socket :
             socketno = socket.fileno()
-            self._opLock.acquire()
-            ok = (socketno in self._asyncSockets)
-            if ok :
-                del self._asyncSockets[socketno]
-                if socket in self._readList :
-                    self._readList.remove(socket)
-                if socket in self._writeList :
-                    self._writeList.remove(socket)
-            self._opLock.release()
+            with self._opLock :
+                ok = (socketno in self._asyncSockets)
+                if ok :
+                    del self._asyncSockets[socketno]
+                    if socket in self._readList :
+                        self._readList.remove(socket)
+                    if socket in self._writeList :
+                        self._writeList.remove(socket)
             return ok
         return False
 
     # ------------------------------------------------------------------------
 
     def _socketListAdd(self, socket, socketsList) :
-        self._opLock.acquire()
-        ok = (socket.fileno() in self._asyncSockets and socket not in socketsList)
-        if ok :
-            socketsList.append(socket)
-        self._opLock.release()
+        if self._opLock.locked() :
+            return False
+        with self._opLock :
+            ok = (socket.fileno() in self._asyncSockets and socket not in socketsList)
+            if ok :
+                socketsList.append(socket)
         return ok
 
     # ------------------------------------------------------------------------
 
     def _socketListRemove(self, socket, socketsList) :
-        self._opLock.acquire()
-        ok = (socket.fileno() in self._asyncSockets and socket in socketsList)
-        if ok :
-            socketsList.remove(socket)
-        self._opLock.release()
+        with self._opLock :
+            ok = (socket.fileno() in self._asyncSockets and socket in socketsList)
+            if ok :
+                socketsList.remove(socket)
         return ok
 
     # ------------------------------------------------------------------------
@@ -1024,13 +1020,12 @@ class XBufferSlots :
 
     def GetAvailableSlot(self) :
         ret = None
-        self._lock.acquire()
-        for slot in self._slots :
-            if slot.Available :
-                slot.Available = False
-                ret = slot
-                break
-        self._lock.release()
+        with self._lock :
+            for slot in self._slots :
+                if slot.Available :
+                    slot.Available = False
+                    ret = slot
+                    break
         return ret
 
     @property
@@ -1060,14 +1055,13 @@ class XFiFo :
         self._last  = None
 
     def Put(self, obj) :
-        self._lock.acquire()
-        if self._first :
-            self._last[1] = [obj, None]
-            self._last    = self._last[1]
-        else :
-            self._last  = [obj, None]
-            self._first = self._last
-        self._lock.release()
+        with self._lock :
+            if self._first :
+                self._last[1] = [obj, None]
+                self._last    = self._last[1]
+            else :
+                self._last  = [obj, None]
+                self._first = self._last
 
     def Get(self) :
         self._lock.acquire()
