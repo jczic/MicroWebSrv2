@@ -41,6 +41,12 @@
 
         <div class="sep"></div>
         
+        {{ py }}
+            print('Unescaped HTML: <strong><u>Okay</u></strong>')
+        {{ end }}
+
+        <div class="sep"></div>
+
         Your address:<br />
         <ul>
             <li> IP   = {{ Request.UserAddress[0] }} </li>

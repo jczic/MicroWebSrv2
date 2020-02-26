@@ -167,6 +167,7 @@ class CodeTemplate :
         self._pyGlobalVars = (pyGlobalVars if isinstance(pyGlobalVars, dict) else { })
         self._pyLocalVars  = (pyLocalVars  if isinstance(pyLocalVars,  dict) else { })
         self._rendered     = ''
+        self._pyGlobalVars['print'] = self._renderingPrint
         newTokenToProcess  = self._parseBloc(execute)
         if newTokenToProcess is not None :
             raise CodeTemplateException( '"%s" instruction is not valid here (line %s)'
@@ -200,6 +201,11 @@ class CodeTemplate :
 
     # ------------------------------------------------------------------------
 
+    def _renderingPrint(self, s) :
+        self._rendered += str(s)
+
+    # ------------------------------------------------------------------------
+
     def _processToken(self, tokenContent, execute) :
         parts        = tokenContent.split(' ', 1)
         instructName = parts[0].strip()
@@ -212,13 +218,14 @@ class CodeTemplate :
             newTokenToProcess = self._instructions[instructName](instructBody, execute)
         elif execute :
             try :
-                s = str( eval( tokenContent,
-                               self._pyGlobalVars,
-                               self._pyLocalVars ) )
-                if (self._escapeStrFunc is not None) :
-                    self._rendered += self._escapeStrFunc(s)
-                else :
-                    self._rendered += s
+                ret = eval( tokenContent,
+                            self._pyGlobalVars,
+                            self._pyLocalVars )
+                if ret is not None :
+                    if (self._escapeStrFunc is not None) :
+                        self._rendered += self._escapeStrFunc(str(ret))
+                    else :
+                        self._rendered += str(ret)
             except Exception as ex :
                 raise CodeTemplateException('%s (line %s)' % (ex, self._line))
         return newTokenToProcess
