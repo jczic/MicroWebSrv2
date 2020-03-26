@@ -43,29 +43,36 @@ class PyhtmlTemplate :
         if (request.Method == 'GET' or request.Method == 'HEAD') and \
            request.Path.lower().endswith('.pyhtml') :
             filepath = microWebSrv2.ResolvePhysicalPath(request.Path)
-            if filepath :
-                try :
-                    with open(filepath, 'r') as file :
-                        code = file.read()
-                    try :
-                        self._pyGlobalVars['Request'] = request
-                        codeTemplate = CodeTemplate(code, microWebSrv2.HTMLEscape)
-                        content      = codeTemplate.Execute(self._pyGlobalVars, None)
-                        request.Response.ReturnOk(content)
-                    except Exception as ex :
-                        microWebSrv2.Log( 'Exception raised from pyhtml template file "%s": %s' % (filepath, ex),
-                                          microWebSrv2.ERROR )
-                        if self._showDebug :
-                            request.Response.Return( 500,
-                                                     PyhtmlTemplate._CODE_CONTENT_DEBUG
-                                                     % { 'path'    : filepath,
-                                                         'message' : ex } )
-                        else :
-                            request.Response.ReturnInternalServerError()
-                except :
-                    request.Response.ReturnForbidden()
+            self.ReturnTemplate(microWebSrv2, request, filepath)
+
+    # ------------------------------------------------------------------------
+
+    def ReturnTemplate(self, microWebSrv2, request, filepath):
+        if not filepath:
+            request.Response.ReturnNotFound()
+
+        try :
+            with open(filepath, 'r') as file :
+                code = file.read()
+        except :
+            request.Response.ReturnForbidden()
+
+        try :
+            self._pyGlobalVars['Request'] = request
+            codeTemplate = CodeTemplate(code, microWebSrv2.HTMLEscape)
+            content      = codeTemplate.Execute(self._pyGlobalVars, None)
+            request.Response.ReturnOk(content)
+
+        except Exception as ex :
+            microWebSrv2.Log( 'Exception raised from pyhtml template file "%s": %s' % (filepath, ex),
+                                microWebSrv2.ERROR )
+            if self._showDebug :
+                request.Response.Return( 500,
+                                         PyhtmlTemplate._CODE_CONTENT_DEBUG
+                                         % { 'path'    : filepath,
+                                             'message' : ex } )
             else :
-                request.Response.ReturnNotFound()
+                request.Response.ReturnInternalServerError()
 
     # ------------------------------------------------------------------------
 
