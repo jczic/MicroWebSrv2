@@ -50,12 +50,14 @@ class PyhtmlTemplate :
     def ReturnTemplate(self, microWebSrv2, request, filepath):
         if not filepath:
             request.Response.ReturnNotFound()
+            return
 
         try :
             with open(filepath, 'r') as file :
                 code = file.read()
         except :
             request.Response.ReturnForbidden()
+            return
 
         try :
             self._pyGlobalVars['Request'] = request
