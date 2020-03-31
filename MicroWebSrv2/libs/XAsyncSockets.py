@@ -53,7 +53,7 @@ class XAsyncSocketsPool :
 
     def _addSocket(self, socket, asyncSocket) :
         if socket :
-            socketno = socket.fileno()
+            socketno = id(socket)
             self._opLock.acquire()
             ok = (socketno not in self._asyncSockets)
             if ok :
@@ -66,7 +66,7 @@ class XAsyncSocketsPool :
 
     def _removeSocket(self, socket) :
         if socket :
-            socketno = socket.fileno()
+            socketno = id(socket)
             self._opLock.acquire()
             ok = (socketno in self._asyncSockets)
             if ok :
@@ -83,7 +83,7 @@ class XAsyncSocketsPool :
 
     def _socketListAdd(self, socket, socketsList) :
         self._opLock.acquire()
-        ok = (socket.fileno() in self._asyncSockets and socket not in socketsList)
+        ok = (id(socket) in self._asyncSockets and socket not in socketsList)
         if ok :
             socketsList.append(socket)
         self._opLock.release()
@@ -93,7 +93,7 @@ class XAsyncSocketsPool :
 
     def _socketListRemove(self, socket, socketsList) :
         self._opLock.acquire()
-        ok = (socket.fileno() in self._asyncSockets and socket in socketsList)
+        ok = (id(socket) in self._asyncSockets and socket in socketsList)
         if ok :
             socketsList.remove(socket)
         self._opLock.release()
@@ -121,7 +121,7 @@ class XAsyncSocketsPool :
                     break
                 for socketsList in ex, wr, rd :
                     for socket in socketsList :
-                        asyncSocket = self._asyncSockets.get(socket.fileno(), None)
+                        asyncSocket = self._asyncSockets.get(id(socket), None)
                         if asyncSocket and self._socketListAdd(socket, self._handlingList) :
                             if socketsList is ex :
                                 asyncSocket.OnExceptionalCondition()
@@ -335,7 +335,7 @@ class XAsyncSocket :
 
     @property
     def SocketID(self) :
-        return self._socket.fileno() if self._socket else None
+        return id(self._socket) if self._socket else None
 
     @property
     def ExpireTimeSec(self) :
