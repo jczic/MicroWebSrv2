@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+import setuptools
 
-setup(
+setuptools.setup(
 	name='MicroWebSrv2',
 	version='master',
 	description='Embedded webserver for MicroPython and CPython',
@@ -12,7 +12,9 @@ setup(
 	url='https://github.com/jczic/MicroWebSrv2',
 	download_url='https://github.com/jczic/MicroWebSrv2/archive/master.zip',
 	packages=[
-		'MicroWebSrv2'
+		'MicroWebSrv2',
+		'MicroWebSrv2/libs',
+		'MicroWebSrv2/mods',
 	],
 	classifiers=[
       	'Topic :: Software Development :: Embedded Systems',
