@@ -145,12 +145,24 @@ Also, architecture makes its integration very easy and the source code, **MIT li
 <a name="install"></a>
 # :electric_plug: &nbsp;Install
 
-- **Solution 1**, clone the [GitHub repository](https://github.com/jczic/MicroWebSrv2.git) from the terminal:
-    ```sh
-    > git clone https://github.com/jczic/MicroWebSrv2.git
-    ```
+- **Solution 1** Run:
 
-- **Solution 2**, download the [ZIP file](https://github.com/jczic/MicroWebSrv2/archive/master.zip) and extract it to a folder of your choice.
+```sh
+    pip3 install --user git+https://github.com/jczic/MicroWebSrv2.git#egg=MicroWebSrv2
+```
+
+- **Solution 2**, clone the [GitHub repository](https://github.com/jczic/MicroWebSrv2.git) from the terminal:
+
+```sh
+    git clone https://github.com/jczic/MicroWebSrv2.git
+```
+        and run:
+
+```sh
+    cd MicroWebSrv2 && pip install --user .
+```
+
+- **Solution 3**, download the [ZIP file](https://github.com/jczic/MicroWebSrv2/archive/master.zip) and extract it to a folder of your choice.
 
 ---
 
