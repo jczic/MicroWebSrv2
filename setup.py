@@ -11,11 +11,7 @@ setuptools.setup(
 	author_email='jcb@hc2.fr',
 	url='https://github.com/jczic/MicroWebSrv2',
 	download_url='https://github.com/jczic/MicroWebSrv2/archive/master.zip',
-	packages=[
-		'MicroWebSrv2',
-		'MicroWebSrv2/libs',
-		'MicroWebSrv2/mods',
-	],
+	packages=find_packages(),
 	classifiers=[
       	'Topic :: Software Development :: Embedded Systems',
       	'Environment :: Web Environment',
