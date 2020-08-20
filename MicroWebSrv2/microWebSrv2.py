@@ -534,7 +534,7 @@ class MicroWebSrv2 :
 
     @OnLogging.setter
     def OnLogging(self, value) :
-        if type(value) is not type(lambda x:x) :
+        if not callable(value) :
             raise ValueError('"OnLogging" must be a function.')
         self._onLogging = value
 
