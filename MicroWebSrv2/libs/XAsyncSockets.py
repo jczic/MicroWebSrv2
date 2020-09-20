@@ -5,6 +5,7 @@ Copyright © 2019 Jean-Christophe Bos & HC² (www.hc2.fr)
 
 import sys
 _IS_MICROPYTHON = sys.implementation.name == 'micropython'
+_IS_MICROPYTHON_LINUX = _IS_MICROPYTHON and (sys.platform == 'linux')
 
 from   _thread  import allocate_lock, start_new_thread
 from   time     import sleep
@@ -439,7 +440,7 @@ class XAsyncTCPServer(XAsyncSocket) :
     def OnReadyForReading(self) :
         try :
             cliSocket, cliAddr = self._socket.accept()
-            if _IS_MICROPYTHON:
+            if _IS_MICROPYTHON_LINUX:   # TODO Resolve ports/unix dependency
                 # b'\x02\x00\x89L\x7f\x00\x00\x01'
                 address = ".".join([str(byte[0])
                                     for byte in struct.unpack('ssss', cliAddr[4:8])])
