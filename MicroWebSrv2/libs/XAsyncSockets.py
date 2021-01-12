@@ -727,6 +727,7 @@ class XAsyncTCPClient(XAsyncSocket) :
                     self._onDataSent    = onDataSent
                     self._onDataSentArg = onDataSentArg
                     self._asyncSocketsPool.NotifyNextReadyForWriting(self, True)
+                    self.OnReadyForWriting()
                     return True
             except :
                 pass
