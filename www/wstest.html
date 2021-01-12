@@ -20,12 +20,20 @@
 
 		function testWebSocket()
 		{
-			var scheme
+			var scheme, defaultPort
 			if (window.location.protocol == 'https:')
+			{
 				scheme = 'wss:';
+				defaultPort = 443;
+			}
 			else
+			{
 				scheme = 'ws:';
+				defaultPort = 80;
+			}
 			var wsUri = scheme + '//' + window.location.hostname;
+			if (window.location.port !== defaultPort)
+				wsUri += ':' + window.location.port;
 			writeToScreen("Connecting to " + wsUri + "...")
 			websocket           = new WebSocket(wsUri);
 			websocket.onopen    = function(evt) { onOpen    (evt) };
