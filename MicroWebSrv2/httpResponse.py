@@ -173,9 +173,7 @@ class HttpResponse :
                 self._xasCli.AsyncSendData(data, onDataSent=onChunkHdrSent)
         else :
             self._xasCli.OnClosed = None
-            if self._keepAlive :
-                self._request._waitForRecvRequest()
-            else :
+            if not self._keepAlive :
                 self._xasCli.Close()
             if self._onSent :
                 try :
@@ -454,6 +452,12 @@ class HttpResponse :
     @property
     def Request(self) :
         return self._request
+
+    # ------------------------------------------------------------------------
+
+    @property
+    def KeepAlive(self) :
+        return self._keepAlive
 
     # ------------------------------------------------------------------------
 
