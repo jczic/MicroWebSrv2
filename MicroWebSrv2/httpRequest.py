@@ -31,13 +31,14 @@ class HttpRequest :
 
     # ------------------------------------------------------------------------
 
-    def _waitForRecvRequest(self) :
+    def _waitForRecvRequest(self, isReuse=False) :
         self._httpVer  = ''
         self._method   = ''
         self._path     = ''
         self._headers  = { }
         self._content  = None
         self._response = HttpResponse(self._mws2, self)
+        self._isReuse = isReuse
         self._recvLine(self._onFirstLineRecv)
 
     # ------------------------------------------------------------------------
@@ -164,7 +165,7 @@ class HttpRequest :
                 self._routeResult.Handler(self._mws2, self, self._routeResult.Args)
             else :
                 self._routeResult.Handler(self._mws2, self)
-            if not self._response.HeadersSent :
+            if not self._response.HeadersSent and not self._isReuse:
                 self._mws2.Log( 'No response was sent from route %s.'
                                 % self._routeResult,
                                 self._mws2.WARNING )

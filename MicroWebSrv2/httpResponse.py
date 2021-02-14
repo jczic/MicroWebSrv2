@@ -174,7 +174,7 @@ class HttpResponse :
         else :
             self._xasCli.OnClosed = None
             if self._keepAlive :
-                self._request._waitForRecvRequest()
+                self._request._waitForRecvRequest(isReuse=True)
             else :
                 self._xasCli.Close()
             if self._onSent :
