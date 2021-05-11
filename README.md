@@ -1363,6 +1363,7 @@ except KeyboardInterrupt :
       | ELSE        | `{{ else }}` *html bloc* `{{ end }}`                                      |
       | FOR         | `{{ for` *identifier* `in` *Python iterator* `}}` *html bloc* `{{ end }}` |
       | Expression  | `{{` *Python expression* `}}`                                             |
+      | PYEND       | `{{ pyend }}` *Python code executed after page served* `{{ end }}`        |
 
       :cyclone: See the **[test.pyhtml](https://github.com/jczic/MicroWebSrv2/blob/master/www/test.pyhtml)** page for the example:
 
