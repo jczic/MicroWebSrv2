@@ -17,9 +17,9 @@ except :
     def perf_counter() :
         return ticks_ms() / 1000
 
-# ============================================================================
-# ===( XAsyncSocketsPool )====================================================
-# ============================================================================
+
+
+
 
 class XAsyncSocketsPoolException(Exception) :
     pass
@@ -35,21 +35,18 @@ class XAsyncSocketsPool :
         self._writeList    = [ ]
         self._handlingList = [ ]
 
-    # ------------------------------------------------------------------------
 
     def _incThreadsCount(self) :
         self._opLock.acquire()
         self._threadsCount += 1
         self._opLock.release()
 
-    # ------------------------------------------------------------------------
 
     def _decThreadsCount(self) :
         self._opLock.acquire()
         self._threadsCount -= 1
         self._opLock.release()
 
-    # ------------------------------------------------------------------------
 
     def _addSocket(self, socket, asyncSocket) :
         if socket :
@@ -62,7 +59,6 @@ class XAsyncSocketsPool :
             return ok
         return False
 
-    # ------------------------------------------------------------------------
 
     def _removeSocket(self, socket) :
         if socket :
@@ -79,7 +75,6 @@ class XAsyncSocketsPool :
             return ok
         return False
 
-    # ------------------------------------------------------------------------
 
     def _socketListAdd(self, socket, socketsList) :
         self._opLock.acquire()
@@ -89,7 +84,6 @@ class XAsyncSocketsPool :
         self._opLock.release()
         return ok
 
-    # ------------------------------------------------------------------------
 
     def _socketListRemove(self, socket, socketsList) :
         self._opLock.acquire()
@@ -99,7 +93,6 @@ class XAsyncSocketsPool :
         self._opLock.release()
         return ok
 
-    # ------------------------------------------------------------------------
 
     _CHECK_SEC_INTERVAL = 1.0
 
@@ -141,7 +134,6 @@ class XAsyncSocketsPool :
                 self._processing = False
         self._decThreadsCount()
 
-    # ------------------------------------------------------------------------
 
     def AddAsyncSocket(self, asyncSocket) :
         try :
@@ -150,7 +142,6 @@ class XAsyncSocketsPool :
             raise XAsyncSocketsPoolException('AddAsyncSocket : "asyncSocket" is incorrect.')
         return self._addSocket(socket, asyncSocket)
 
-    # ------------------------------------------------------------------------
 
     def RemoveAsyncSocket(self, asyncSocket) :
         try :
@@ -159,17 +150,14 @@ class XAsyncSocketsPool :
             raise XAsyncSocketsPoolException('RemoveAsyncSocket : "asyncSocket" is incorrect.')
         return self._removeSocket(socket)
 
-    # ------------------------------------------------------------------------
 
     def GetAllAsyncSockets(self) :
         return list(self._asyncSockets.values())
 
-    # ------------------------------------------------------------------------
 
     def GetAsyncSocketByID(self, id) :
         return self._asyncSockets.get(id, None)
 
-    # ------------------------------------------------------------------------
 
     def NotifyNextReadyForReading(self, asyncSocket, notify) :
         try :
@@ -181,7 +169,6 @@ class XAsyncSocketsPool :
         else :
             self._socketListRemove(socket, self._readList)
 
-    # ------------------------------------------------------------------------
 
     def NotifyNextReadyForWriting(self, asyncSocket, notify) :
         try :
@@ -193,7 +180,6 @@ class XAsyncSocketsPool :
         else :
             self._socketListRemove(socket, self._writeList)
 
-    # ------------------------------------------------------------------------
 
     def AsyncWaitEvents(self, threadsCount=0) :
         if self._processing or self._threadsCount :
@@ -211,22 +197,20 @@ class XAsyncSocketsPool :
         else :
             self._processWaitEvents()
 
-    # ------------------------------------------------------------------------
 
     def StopWaitEvents(self) :
         self._processing = False
         while self._threadsCount :
             sleep(0.001)
 
-    # ------------------------------------------------------------------------
 
     @property
     def WaitEventsProcessing(self) :
         return (self._threadsCount > 0)
 
-# ============================================================================
-# ===( XClosedReason )========================================================
-# ============================================================================
+
+
+
 
 class XClosedReason() :
 
@@ -235,9 +219,9 @@ class XClosedReason() :
     ClosedByPeer = 0x02
     Timeout      = 0x03
 
-# ============================================================================
-# ===( XAsyncSocket )=========================================================
-# ============================================================================
+
+
+
 
 class XAsyncSocketException(Exception) :
     pass
@@ -264,7 +248,6 @@ class XAsyncSocket :
         except :
             raise XAsyncSocketException('XAsyncSocket : Arguments are incorrects.')
 
-    # ------------------------------------------------------------------------
 
     def _setExpireTimeout(self, timeoutSec) :
         try :
@@ -273,12 +256,10 @@ class XAsyncSocket :
         except :
             raise XAsyncSocketException('"timeoutSec" is incorrect to set expire timeout.')
 
-    # ------------------------------------------------------------------------
 
     def _removeExpireTimeout(self) :
         self._expireTimeSec = None
 
-    # ------------------------------------------------------------------------
 
     def _close(self, closedReason=XClosedReason.Error, triggerOnClosed=True) :
         if self._asyncSocketsPool.RemoveAsyncSocket(self) :
@@ -301,37 +282,30 @@ class XAsyncSocket :
             return True
         return False
 
-    # ------------------------------------------------------------------------
 
     def GetAsyncSocketsPool(self) :
         return self._asyncSocketsPool
 
-    # ------------------------------------------------------------------------
 
     def GetSocketObj(self) :
         return self._socket
 
-    # ------------------------------------------------------------------------
 
     def Close(self) :
         return self._close(XClosedReason.ClosedByHost)
 
-    # ------------------------------------------------------------------------
 
     def OnReadyForReading(self) :
         pass
 
-    # ------------------------------------------------------------------------
 
     def OnReadyForWriting(self) :
         pass
 
-    # ------------------------------------------------------------------------
 
     def OnExceptionalCondition(self) :
         self._close()
 
-    # ------------------------------------------------------------------------
 
     @property
     def SocketID(self) :
@@ -355,9 +329,9 @@ class XAsyncSocket :
     def State(self, value) :
         self._state = value
 
-# ============================================================================
-# ===( XAsyncTCPServer )======================================================
-# ============================================================================
+
+
+
 
 class XAsyncTCPServerException(Exception) :
     pass
@@ -385,7 +359,6 @@ class XAsyncTCPServer(XAsyncSocket) :
         asyncSocketsPool.NotifyNextReadyForReading(xAsyncTCPServer, True)
         return xAsyncTCPServer
 
-    # ------------------------------------------------------------------------
 
     def __init__(self, asyncSocketsPool, srvSocket, srvAddr, bufSlots) :
         try :
@@ -396,7 +369,6 @@ class XAsyncTCPServer(XAsyncSocket) :
         except :
             raise XAsyncTCPServerException('Error to creating XAsyncTCPServer, arguments are incorrects.')
 
-    # ------------------------------------------------------------------------
 
     def OnReadyForReading(self) :
         try :
@@ -424,7 +396,6 @@ class XAsyncTCPServer(XAsyncSocket) :
             asyncTCPCli._close()
             raise XAsyncTCPServerException('Error when handling the "OnClientAccepted" event : %s' % ex)
 
-    # ------------------------------------------------------------------------
 
     @property
     def SrvAddr(self) :
@@ -437,9 +408,9 @@ class XAsyncTCPServer(XAsyncSocket) :
     def OnClientAccepted(self, value) :
         self._onClientAccepted = value
 
-# ============================================================================
-# ===( XAsyncTCPClient )======================================================
-# ============================================================================
+
+
+
 
 class XAsyncTCPClientException(Exception) :
     pass
@@ -508,7 +479,6 @@ class XAsyncTCPClient(XAsyncSocket) :
         asyncTCPCli._close()
         return None
 
-    # ------------------------------------------------------------------------
 
     def __init__(self, asyncSocketsPool, cliSocket, srvAddr, cliAddr, recvBufSlot, sendBufSlot) :
         try :
@@ -530,7 +500,6 @@ class XAsyncTCPClient(XAsyncSocket) :
         except :
             raise XAsyncTCPClientException('Error to creating XAsyncTCPClient, arguments are incorrects.')
 
-    # ------------------------------------------------------------------------
 
     def Close(self) :
         if self._wrBufView :
@@ -544,7 +513,6 @@ class XAsyncTCPClient(XAsyncSocket) :
             pass
         return self._close(XClosedReason.ClosedByHost)
 
-    # ------------------------------------------------------------------------
 
     def OnReadyForReading(self) :
         while True :
@@ -570,7 +538,7 @@ class XAsyncTCPClient(XAsyncSocket) :
                         return
                     if b :
                         if b == b'\n' :
-                            lineLen = self._rdLinePos 
+                            lineLen = self._rdLinePos
                             self._rdLinePos = None
                             self._asyncSocketsPool.NotifyNextReadyForReading(self, False)
                             self._removeExpireTimeout()
@@ -639,7 +607,6 @@ class XAsyncTCPClient(XAsyncSocket) :
             else :
                 return
 
-    # ------------------------------------------------------------------------
 
     def OnReadyForWriting(self) :
         if not self._socketOpened :
@@ -674,7 +641,6 @@ class XAsyncTCPClient(XAsyncSocket) :
                     except Exception as ex :
                         raise XAsyncTCPClientException('Error when handling the "OnDataSent" event : %s' % ex)
 
-    # ------------------------------------------------------------------------
 
     def AsyncRecvLine(self, lineEncoding='UTF-8', onLineRecv=None, onLineRecvArg=None, timeoutSec=None) :
         if self._rdLinePos is not None or self._sizeToRecv :
@@ -689,7 +655,6 @@ class XAsyncTCPClient(XAsyncSocket) :
             return True
         return False
 
-    # ------------------------------------------------------------------------
 
     def AsyncRecvData(self, size=None, onDataRecv=None, onDataRecvArg=None, timeoutSec=None) :
         if self._rdLinePos is not None or self._sizeToRecv :
@@ -714,7 +679,6 @@ class XAsyncTCPClient(XAsyncSocket) :
             return True
         return False
 
-    # ------------------------------------------------------------------------
 
     def AsyncSendData(self, data, onDataSent=None, onDataSentArg=None) :
         if self._socket :
@@ -734,7 +698,6 @@ class XAsyncTCPClient(XAsyncSocket) :
             raise XAsyncTCPClientException('AsyncSendData : "data" is incorrect.')
         return False
 
-    # ------------------------------------------------------------------------
 
     def AsyncSendSendingBuffer(self, size=None, onDataSent=None, onDataSentArg=None) :
         if self._wrBufView :
@@ -750,7 +713,6 @@ class XAsyncTCPClient(XAsyncSocket) :
                 return True
         return False
 
-    # ------------------------------------------------------------------------
 
     def _doSSLHandshake(self) :
         count = 0
@@ -769,7 +731,6 @@ class XAsyncTCPClient(XAsyncSocket) :
             except Exception as ex :
                 raise XAsyncTCPClientException('SSL : Handshake error : %s' % ex)
 
-    # ------------------------------------------------------------------------
 
     def StartSSL( self,
                   keyfile     = None,
@@ -795,7 +756,6 @@ class XAsyncTCPClient(XAsyncSocket) :
             raise XAsyncTCPClientException('StartSSL : %s' % ex)
         self._doSSLHandshake()
 
-    # ------------------------------------------------------------------------
 
     def StartSSLContext(self, sslContext, serverSide=False) :
         if not hasattr(ssl, 'SSLContext') :
@@ -814,7 +774,6 @@ class XAsyncTCPClient(XAsyncSocket) :
             raise XAsyncTCPClientException('StartSSLContext : %s' % ex)
         self._doSSLHandshake()
 
-    # ------------------------------------------------------------------------
 
     @property
     def SrvAddr(self) :
@@ -847,9 +806,9 @@ class XAsyncTCPClient(XAsyncSocket) :
     def OnConnected(self, value) :
         self._onConnected = value
 
-# ============================================================================
-# ===( XAsyncUDPDatagram )====================================================
-# ============================================================================
+
+
+
 
 class XAsyncUDPDatagramException(Exception) :
     pass
@@ -883,7 +842,6 @@ class XAsyncUDPDatagram(XAsyncSocket) :
             asyncSocketsPool.NotifyNextReadyForReading(xAsyncUDPDatagram, True)
         return xAsyncUDPDatagram
 
-    # ------------------------------------------------------------------------
 
     def __init__(self, asyncSocketsPool, udpSocket, recvBufSlot) :
         try :
@@ -896,7 +854,6 @@ class XAsyncUDPDatagram(XAsyncSocket) :
         except :
             raise XAsyncUDPDatagramException('Error to creating XAsyncUDPDatagram, arguments are incorrects.')
 
-    # ------------------------------------------------------------------------
 
     def OnReadyForReading(self) :
         try :
@@ -914,7 +871,6 @@ class XAsyncUDPDatagram(XAsyncSocket) :
             except Exception as ex :
                 raise XAsyncUDPDatagramException('Error when handling the "OnDataRecv" event : %s' % ex)
 
-    # ------------------------------------------------------------------------
 
     def OnReadyForWriting(self) :
         if not self._wrDgramFiFo.Empty :
@@ -938,7 +894,6 @@ class XAsyncUDPDatagram(XAsyncSocket) :
             except Exception as ex :
                 raise XAsyncUDPDatagramException('Error when handling the "OnDataSent" event : %s' % ex)
 
-    # ------------------------------------------------------------------------
 
     def AsyncSendDatagram(self, datagram, remoteAddr, onDataSent=None, onDataSentArg=None) :
         if self._socket :
@@ -954,7 +909,6 @@ class XAsyncUDPDatagram(XAsyncSocket) :
             raise XAsyncUDPDatagramException('AsyncSendDatagram : Arguments are incorrects.')
         return False
 
-    # ------------------------------------------------------------------------
 
     @property
     def LocalAddr(self) :
@@ -977,9 +931,9 @@ class XAsyncUDPDatagram(XAsyncSocket) :
     def OnFailsToSend(self, value) :
         self._onFailsToSend = value
 
-# ============================================================================
-# ===( XBufferSlot )==========================================================
-# ============================================================================
+
+
+
 
 class XBufferSlot :
 
@@ -1009,9 +963,9 @@ class XBufferSlot :
             self._buffer = bytearray(self._size)
         return self._buffer
 
-# ============================================================================
-# ===( XBufferSlots )=========================================================
-# ============================================================================
+
+
+
 
 class XBufferSlots :
 
@@ -1046,9 +1000,9 @@ class XBufferSlots :
     def Slots(self) :
         return self._slots
 
-# ============================================================================
-# ===( XFiFo )================================================================
-# ============================================================================
+
+
+
 
 class XFiFoException(Exception) :
     pass
@@ -1088,7 +1042,3 @@ class XFiFo :
     @property
     def Empty(self) :
         return (self._first is None)
-
-# ============================================================================
-# ============================================================================
-# ============================================================================

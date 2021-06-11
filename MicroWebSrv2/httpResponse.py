@@ -7,10 +7,6 @@ Copyright © 2019 Jean-Christophe Bos & HC² (www.hc2.fr)
 from   os   import stat
 import json
 
-# ============================================================================
-# ===( HttpResponse )=========================================================
-# ============================================================================
-
 class HttpResponse :
 
     _RESPONSE_CODES = {
@@ -108,7 +104,6 @@ class HttpResponse :
     </html>
     """
 
-    # ------------------------------------------------------------------------
 
     def __init__(self, microWebSrv2, request) :
         self._mws2            = microWebSrv2
@@ -125,7 +120,6 @@ class HttpResponse :
         self._hdrSent         = False
         self._onSent          = None
 
-    # ------------------------------------------------------------------------
 
     def SetHeader(self, name, value) :
         if not isinstance(name, str) or len(name) == 0 :
@@ -134,7 +128,6 @@ class HttpResponse :
             raise ValueError('"value" cannot be None.')
         self._headers[name] = str(value)
 
-    # ------------------------------------------------------------------------
 
     def _onDataSent(self, xasCli, arg) :
         if self._stream :
@@ -184,7 +177,6 @@ class HttpResponse :
                     self._mws2.Log( 'Exception raised from "Response.OnSent" handler: %s' % ex,
                                     self._mws2.ERROR )
 
-    # ------------------------------------------------------------------------
 
     def _onClosed(self, xasCli, closedReason) :
         if self._stream :
@@ -195,7 +187,6 @@ class HttpResponse :
             self._stream = None
         self._sendingBuf = None
 
-    # ------------------------------------------------------------------------
 
     def _makeBaseResponseHdr(self, code) :
         reason = self._RESPONSE_CODES.get(code, ('Unknown reason', ))[0]
@@ -219,7 +210,6 @@ class HttpResponse :
         resp = 'HTTP/1.1 %s %s\r\n%s\r\n' % (code, reason, hdr)
         return resp.encode('ISO-8859-1')
 
-    # ------------------------------------------------------------------------
 
     def _makeResponseHdr(self, code) :
         if code >= 200 and code < 300 :
@@ -244,7 +234,6 @@ class HttpResponse :
             self.SetHeader('Content-Length', self._contentLength)
         return self._makeBaseResponseHdr(code)
 
-    # ------------------------------------------------------------------------
 
     def SwitchingProtocols(self, upgrade) :
         if not isinstance(upgrade, str) or len(upgrade) == 0 :
@@ -260,7 +249,6 @@ class HttpResponse :
         self._xasCli.AsyncSendData(data)
         self._hdrSent = True
 
-    # ------------------------------------------------------------------------
 
     def ReturnStream(self, code, stream) :
         if not isinstance(code, int) or code <= 0 :
@@ -293,7 +281,6 @@ class HttpResponse :
         self._xasCli.AsyncSendData(data, onDataSent=self._onDataSent)
         self._hdrSent = True
 
-    # ------------------------------------------------------------------------
 
     def Return(self, code, content=None) :
         if not isinstance(code, int) or code <= 0 :
@@ -323,7 +310,6 @@ class HttpResponse :
         self._xasCli.AsyncSendData(data, onDataSent=self._onDataSent)
         self._hdrSent = True
 
-    # ------------------------------------------------------------------------
 
     def ReturnJSON(self, code, obj) :
         if not isinstance(code, int) or code <= 0 :
@@ -335,17 +321,14 @@ class HttpResponse :
             raise ValueError('"obj" cannot be converted into JSON format.')
         self.Return(code, content)
 
-    # ------------------------------------------------------------------------
 
     def ReturnOk(self, content=None) :
         self.Return(200, content)
 
-    # ------------------------------------------------------------------------
 
     def ReturnOkJSON(self, obj) :
         self.ReturnJSON(200, obj)
 
-    # ------------------------------------------------------------------------
 
     def ReturnFile(self, filename, attachmentName=None) :
         if not isinstance(filename, str) or len(filename) == 0 :
@@ -370,12 +353,10 @@ class HttpResponse :
         self._contentLength = size
         self.ReturnStream(200, file)
 
-    # ------------------------------------------------------------------------
 
     def ReturnNotModified(self) :
         self.Return(304)
 
-    # ------------------------------------------------------------------------
 
     def ReturnRedirect(self, location) :
         if not isinstance(location, str) or len(location) == 0 :
@@ -383,12 +364,10 @@ class HttpResponse :
         self.SetHeader('Location', location)
         self.Return(307)
 
-    # ------------------------------------------------------------------------
 
     def ReturnBadRequest(self) :
         self.Return(400)
 
-    # ------------------------------------------------------------------------
 
     def ReturnUnauthorized(self, typeName, realm=None) :
         if not isinstance(typeName, str) or len(typeName) == 0 :
@@ -401,12 +380,10 @@ class HttpResponse :
         self.SetHeader('WWW-Authenticate', wwwAuth)
         self.Return(401)
 
-    # ------------------------------------------------------------------------
 
     def ReturnForbidden(self) :
         self.Return(403)
 
-    # ------------------------------------------------------------------------
 
     def ReturnNotFound(self) :
         if self._mws2._notFoundURL :
@@ -414,60 +391,49 @@ class HttpResponse :
         else :
             self.Return(404)
 
-    # ------------------------------------------------------------------------
 
     def ReturnMethodNotAllowed(self) :
         self.Return(405)
 
-    # ------------------------------------------------------------------------
 
     def ReturnEntityTooLarge(self) :
         self.Return(413)
 
-    # ------------------------------------------------------------------------
 
     def ReturnInternalServerError(self) :
         self.Return(500)
 
-    # ------------------------------------------------------------------------
 
     def ReturnNotImplemented(self) :
         self.Return(501)
 
-    # ------------------------------------------------------------------------
 
     def ReturnServiceUnavailable(self) :
         self.Return(503)
 
-    # ------------------------------------------------------------------------
 
     def ReturnBasicAuthRequired(self) :
         self.ReturnUnauthorized('Basic')
 
-    # ------------------------------------------------------------------------
 
     def ReturnBearerAuthRequired(self) :
         self.ReturnUnauthorized('Bearer')
 
-    # ------------------------------------------------------------------------
 
     @property
     def Request(self) :
         return self._request
 
-    # ------------------------------------------------------------------------
 
     @property
     def UserAddress(self) :
         return self._xasCli.CliAddr
 
-    # ------------------------------------------------------------------------
 
     @property
     def IsSSL(self) :
         return self._xasCli.IsSSL
 
-    # ------------------------------------------------------------------------
 
     @property
     def AllowCaching(self) :
@@ -479,7 +445,6 @@ class HttpResponse :
             raise ValueError('"AllowCaching" must be a boolean.')
         self._allowCaching = value
 
-    # ------------------------------------------------------------------------
 
     @property
     def AccessControlAllowOrigin(self) :
@@ -491,7 +456,6 @@ class HttpResponse :
             raise ValueError('"AccessControlAllowOrigin" must be a string or None.')
         self._acAllowOrigin = value
 
-    # ------------------------------------------------------------------------
 
     @property
     def ContentType(self) :
@@ -503,7 +467,6 @@ class HttpResponse :
             raise ValueError('"ContentType" must be a string or None.')
         self._contentType = value
 
-    # ------------------------------------------------------------------------
 
     @property
     def ContentCharset(self) :
@@ -515,7 +478,6 @@ class HttpResponse :
             raise ValueError('"ContentCharset" must be a string or None.')
         self._contentCharset = value
 
-    # ------------------------------------------------------------------------
 
     @property
     def ContentLength(self) :
@@ -527,13 +489,11 @@ class HttpResponse :
             raise ValueError('"ContentLength" must be a positive integer or zero.')
         self._contentLength = value
 
-    # ------------------------------------------------------------------------
 
     @property
     def HeadersSent(self) :
         return self._hdrSent
 
-    # ------------------------------------------------------------------------
 
     @property
     def OnSent(self) :
@@ -544,7 +504,3 @@ class HttpResponse :
         if type(value) is not type(lambda x:x) :
             raise ValueError('"OnSent" must be a function.')
         self._onSent = value
-
-# ============================================================================
-# ============================================================================
-# ============================================================================

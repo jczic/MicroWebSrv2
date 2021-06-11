@@ -6,7 +6,6 @@ Copyright © 2019 Jean-Christophe Bos & HC² (www.hc2.fr)
 
 class UrlUtils :
 
-    # ----------------------------------------------------------------------------
 
     @staticmethod
     def Quote(s, safe='/') :
@@ -22,13 +21,11 @@ class UrlUtils :
                     r += '%%%02X' % b
         return r
 
-    # ----------------------------------------------------------------------------
 
     @staticmethod
     def UrlEncode(s) :
         return UrlUtils.Quote(s, ';/?:@&=+$,')
 
-    # ----------------------------------------------------------------------------
 
     @staticmethod
     def Unquote(s) :
@@ -44,7 +41,6 @@ class UrlUtils :
         except :
             return str(s)
 
-    # ----------------------------------------------------------------------------
 
     @staticmethod
     def UnquotePlus(s) :
@@ -55,21 +51,18 @@ class UrlUtils :
     # ============================================================================
 
     class Url :
-    
+
         def __init__(self, url='') :
             self.URL = url
 
-        # ------------------------------------------------------------------------
 
         def __repr__(self) :
             return self.URL if self.URL is not None else ''
 
-        # ------------------------------------------------------------------------
 
         def IsHttps(self) :
             return (self._proto == 'https')
 
-        # ------------------------------------------------------------------------
 
         @property
         def URL(self) :
@@ -119,7 +112,6 @@ class UrlUtils :
             self._queryParams = { }
             self.Path         = path
 
-        # ------------------------------------------------------------------------
 
         @property
         def Proto(self) :
@@ -136,17 +128,15 @@ class UrlUtils :
                 raise ValueError('Unsupported URL protocol (%s)' % value)
             self._proto = value
 
-        # ------------------------------------------------------------------------
 
         @property
         def Host(self) :
             return self._host
-        
+
         @Host.setter
         def Host(self, value) :
             self._host = UrlUtils.UnquotePlus(value)
 
-        # ------------------------------------------------------------------------
 
         @property
         def Port(self) :
@@ -162,7 +152,6 @@ class UrlUtils :
                 raise ValueError('Port must be greater than 0 and less than 65536')
             self._port = p
 
-        # ------------------------------------------------------------------------
 
         @property
         def Path(self) :
@@ -180,7 +169,6 @@ class UrlUtils :
             if len(x) == 2 :
                 self.QueryString = x[1]
 
-        # ------------------------------------------------------------------------
 
         @property
         def QueryString(self) :
@@ -201,7 +189,6 @@ class UrlUtils :
                     value = UrlUtils.Unquote(param[1]) if len(param) > 1 else ''
                     self._queryParams[UrlUtils.Unquote(param[0])] = value
 
-        # ------------------------------------------------------------------------
 
         @property
         def QueryParams(self) :

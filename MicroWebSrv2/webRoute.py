@@ -6,26 +6,18 @@ Copyright © 2019 Jean-Christophe Bos & HC² (www.hc2.fr)
 
 import re
 
-# ============================================================================
-# ===( @WebRoute decorator )==================================================
-# ============================================================================
-
 def WebRoute(method=None, routePath=None, name=None) :
 
     if type(method) is type(lambda x:x) and not routePath :
         raise ValueError('[@WebRoute] arguments are required for this decorator.')
-    
+
     def decorated(handler) :
         RegisterRoute(handler, method, routePath, name)
         s = (' (%s)' % name) if name else ''
         print(' + [@WebRoute] %s %s' % (method, routePath) + s)
         return handler
-    
-    return decorated
 
-# ============================================================================
-# ===( RegisterResult )=======================================================
-# ============================================================================
+    return decorated
 
 def RegisterRoute(handler, method, routePath, name=None) :
     if type(handler) is not type(lambda x:x) :
@@ -66,10 +58,6 @@ def RegisterRoute(handler, method, routePath, name=None) :
     regRoute = _registeredRoute(handler, method, routePath, name, regex, argNames)
     _registeredRoutes.append(regRoute)
 
-# ============================================================================
-# ===( ResolveRoute )=========================================================
-# ============================================================================
-
 def ResolveRoute(method, path) :
     try :
         path = path.lower()
@@ -94,10 +82,6 @@ def ResolveRoute(method, path) :
         pass
     return None
 
-# ============================================================================
-# ===( PathFromRoute )========================================================
-# ============================================================================
-
 def PathFromRoute(routeName, routeArgs={ }) :
     if not isinstance(routeName, str) or len(routeName) == 0 :
         raise ValueError('"routeName" requires a not empty string.')
@@ -113,10 +97,6 @@ def PathFromRoute(routeName, routeArgs={ }) :
                 path = path.replace('<%s>' % argName, str(arg))
             return path
     raise ValueError('"routeName" is not a registered route (%s).' % routeName)
-
-# ============================================================================
-# ===( RouteResult )==========================================================
-# ============================================================================
 
 class RouteResult :
 
@@ -149,10 +129,6 @@ class RouteResult :
     def Args(self) :
         return self._args
 
-# ============================================================================
-# ===( Methods )==============================================================
-# ============================================================================
-
 GET     = 'GET'
 HEAD    = 'HEAD'
 POST    = 'POST'
@@ -161,13 +137,8 @@ DELETE  = 'DELETE'
 OPTIONS = 'OPTIONS'
 PATCH   = 'PATCH'
 
-# ============================================================================
-# ===( Private registered routes  )===========================================
-# ============================================================================
-
 _registeredRoutes = [ ]
 
-# ------------------------------------------------------------------------
 
 class _registeredRoute :
 
@@ -178,7 +149,3 @@ class _registeredRoute :
         self.Name      = name
         self.Regex     = regex
         self.ArgNames  = argNames
-
-# ============================================================================
-# ============================================================================
-# ============================================================================

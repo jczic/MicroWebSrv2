@@ -8,9 +8,9 @@ from   os   import stat
 import re
 from   _thread  import start_new_thread
 
-# ============================================================================
-# ===( MicroWebSrv2 : PyhtmlTemplate Module )=================================
-# ============================================================================
+
+: PyhtmlTemplate Module )=================================
+
 
 class PyhtmlTemplate :
 
@@ -32,13 +32,11 @@ class PyhtmlTemplate :
     </html>
     """
 
-    # ------------------------------------------------------------------------
 
     def __init__(self) :
         self._showDebug    = False
         self._pyGlobalVars = { }
 
-    # ------------------------------------------------------------------------
 
     def OnRequest(self, microWebSrv2, request) :
         if (request.Method == 'GET' or request.Method == 'HEAD') and \
@@ -46,7 +44,6 @@ class PyhtmlTemplate :
             filepath = microWebSrv2.ResolvePhysicalPath(request.Path)
             self.ReturnTemplate(microWebSrv2, request, filepath)
 
-    # ------------------------------------------------------------------------
 
     def ReturnTemplate(self, microWebSrv2, request, filepath):
         if not filepath:
@@ -78,14 +75,12 @@ class PyhtmlTemplate :
             else :
                 request.Response.ReturnInternalServerError()
 
-    # ------------------------------------------------------------------------
 
     def SetGlobalVar(self, globalVarName, globalVar) :
         if not isinstance(globalVarName, str) or len(globalVarName) == 0 :
             raise ValueError('"globalVarName" must be a not empty string.')
         self._pyGlobalVars[globalVarName] = globalVar
 
-    # ------------------------------------------------------------------------
 
     def GetGlobalVar(self, globalVarName) :
         if not isinstance(globalVarName, str) or len(globalVarName) == 0 :
@@ -95,7 +90,6 @@ class PyhtmlTemplate :
         except :
             return None
 
-    # ------------------------------------------------------------------------
 
     @property
     def ShowDebug(self) :
@@ -107,16 +101,15 @@ class PyhtmlTemplate :
             raise ValueError('"ShowDebug" must be a boolean.')
         self._showDebug = value
 
-# ============================================================================
-# ===( CodeTemplate )=========================================================
-# ============================================================================
+
+
+
 
 class CodeTemplateException(Exception) :
     pass
 
 class CodeTemplate :
 
-    # ------------------------------------------------------------------------
 
     TOKEN_OPEN              = '{{'
     TOKEN_CLOSE             = '}}'
@@ -133,7 +126,6 @@ class CodeTemplate :
 
     RE_IDENTIFIER           = re.compile(r'[a-zA-Z_][a-zA-Z0-9_]*$')
 
-    # ------------------------------------------------------------------------
 
     def __init__(self, code, escapeStrFunc=None) :
         self._code          = code
@@ -155,7 +147,6 @@ class CodeTemplate :
             CodeTemplate.INSTRUCTION_END    : self._processInstructionEND
         }
 
-    # ------------------------------------------------------------------------
 
     def Validate(self, pyGlobalVars=None, pyLocalVars=None) :
         try :
@@ -164,7 +155,6 @@ class CodeTemplate :
         except Exception as ex :
             return str(ex)
 
-    # ----------------------------------------------------------------------------
 
     def Execute(self, pyGlobalVars=None, pyLocalVars=None) :
         try :
@@ -173,7 +163,6 @@ class CodeTemplate :
         except Exception as ex :
             raise CodeTemplateException(str(ex))
 
-    # ------------------------------------------------------------------------
 
     def _parseCode(self, pyGlobalVars, pyLocalVars, execute) :
         self._pos          = 0
@@ -187,7 +176,6 @@ class CodeTemplate :
             raise CodeTemplateException( '"%s" instruction is not valid here (line %s)'
                                          % (newTokenToProcess, self._line) )
 
-    # ------------------------------------------------------------------------
 
     def _parseBloc(self, execute) :
         while True :
@@ -213,12 +201,10 @@ class CodeTemplate :
             if newTokenToProcess is not None :
                 return newTokenToProcess
 
-    # ------------------------------------------------------------------------
 
     def _renderingPrint(self, s) :
         self._rendered += str(s)
 
-    # ------------------------------------------------------------------------
 
     def _processToken(self, tokenContent, execute) :
         parts        = tokenContent.split(' ', 1)
@@ -244,7 +230,6 @@ class CodeTemplate :
                 raise CodeTemplateException('%s (line %s)' % (ex, self._line))
         return newTokenToProcess
 
-    # ------------------------------------------------------------------------
 
     def _processInstructionPYTHON(self, instructionBody, execute) :
         if instructionBody is not None :
@@ -270,7 +255,6 @@ class CodeTemplate :
             self._executePyCode(lines)
         return None
 
-    # ------------------------------------------------------------------------
 
     def _processInstructionPYTHONEND(self, instructionBody, execute) :
         if instructionBody is not None :
@@ -297,7 +281,6 @@ class CodeTemplate :
             self._endPyCode = None
         return None
 
-    # ------------------------------------------------------------------------
 
     def _processInstructionIF(self, instructionBody, execute) :
         if instructionBody is not None :
@@ -339,7 +322,6 @@ class CodeTemplate :
         raise CodeTemplateException( '"%s" alone is an incomplete syntax (line %s)'
                                      % (CodeTemplate.INSTRUCTION_IF, self._line) )
 
-    # ------------------------------------------------------------------------
 
     def _processInstructionELIF(self, instructionBody, execute) :
         if instructionBody is None :
@@ -348,7 +330,6 @@ class CodeTemplate :
         self._elifInstructionBody = instructionBody
         return CodeTemplate.INSTRUCTION_ELIF
 
-    # ------------------------------------------------------------------------
 
     def _processInstructionELSE(self, instructionBody, execute) :
         if instructionBody is not None :
@@ -356,7 +337,6 @@ class CodeTemplate :
                                          % (CodeTemplate.INSTRUCTION_ELSE, self._line) )
         return CodeTemplate.INSTRUCTION_ELSE
 
-    # ------------------------------------------------------------------------
 
     def _processInstructionFOR(self, instructionBody, execute) :
         if instructionBody is not None :
@@ -394,7 +374,6 @@ class CodeTemplate :
         raise CodeTemplateException( '"%s" alone is an incomplete syntax (line %s)'
                                      % (CodeTemplate.INSTRUCTION_FOR, self._line) )
 
-    # ------------------------------------------------------------------------
 
     def _processInstructionEND(self, instructionBody, execute) :
         if instructionBody is not None :
@@ -402,7 +381,6 @@ class CodeTemplate :
                                          % (CodeTemplate.INSTRUCTION_END, self._line) )
         return CodeTemplate.INSTRUCTION_END
 
-    # ------------------------------------------------------------------------
 
     def _handleEndPyCode(self) :
         if self._endPyCode is None:
@@ -410,7 +388,6 @@ class CodeTemplate :
 
         start_new_thread(self._executePyCode, (self._endPyCode,))
 
-    # ------------------------------------------------------------------------
 
     def _executePyCode(self, lines):
         indent = ''
@@ -433,7 +410,3 @@ class CodeTemplate :
             exec(pyCode, self._pyGlobalVars, self._pyLocalVars)
         except Exception as ex :
             raise CodeTemplateException('%s (line %s)' % (ex, self._line))
-
-# ============================================================================
-# ============================================================================
-# ============================================================================

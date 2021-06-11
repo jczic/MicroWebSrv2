@@ -10,14 +10,9 @@ from os            import stat
 from sys           import implementation
 from _thread       import stack_size
 
-# ============================================================================
-# ===( MicroWebSrv2 )=========================================================
-# ============================================================================
-
 class MicroWebSrv2Exception(Exception) :
     pass
 
-# ----------------------------------------------------------------------------
 
 class MicroWebSrv2 :
 
@@ -74,11 +69,9 @@ class MicroWebSrv2 :
         ERROR   : 'ERROR'
     }
 
-    # ------------------------------------------------------------------------
 
     _modules = { }
 
-    # ------------------------------------------------------------------------
 
     def __init__(self) :
         self._backlog         = None
@@ -98,7 +91,6 @@ class MicroWebSrv2 :
         self._xasPool         = None
         self.SetNormalConfig()
 
-    # ------------------------------------------------------------------------
 
     @staticmethod
     def _physPathExists(physPath) :
@@ -108,13 +100,11 @@ class MicroWebSrv2 :
         except :
             return False
 
-    # ------------------------------------------------------------------------
 
     @staticmethod
     def _physPathIsDir(physPath) :
         return (stat(physPath)[0] & MicroWebSrv2._STAT_MODE_DIR != 0)
 
-    # ------------------------------------------------------------------------
 
     @staticmethod
     def LoadModule(modName) :
@@ -137,15 +127,12 @@ class MicroWebSrv2 :
             raise MicroWebSrv2Exception('Cannot load module "%s".' % modName)
 
 
-    # ------------------------------------------------------------------------
-
     @staticmethod
     def HTMLEscape(s) :
         if not isinstance(s, str) :
             raise ValueError('"s" must be a string.')
         return ''.join(MicroWebSrv2._HTML_ESCAPE_CHARS.get(c, c) for c in s)
 
-    # ------------------------------------------------------------------------
 
     @staticmethod
     def AddDefaultPage(filename) :
@@ -153,7 +140,6 @@ class MicroWebSrv2 :
             raise ValueError('"filename" must be a not empty string.')
         MicroWebSrv2._DEFAULT_PAGES.append(filename)
 
-    # ------------------------------------------------------------------------
 
     @staticmethod
     def AddMimeType(ext, mimeType) :
@@ -163,7 +149,6 @@ class MicroWebSrv2 :
             raise ValueError('"mimeType" must be a not empty string.')
         MicroWebSrv2._MIME_TYPES[ext.lower()] = mimeType.lower()
 
-    # ------------------------------------------------------------------------
 
     @staticmethod
     def GetMimeTypeFromFilename(filename) :
@@ -173,7 +158,6 @@ class MicroWebSrv2 :
                 return MicroWebSrv2._MIME_TYPES[ext]
         return None
 
-    # ------------------------------------------------------------------------
 
     def StartInPool(self, asyncSocketsPool) :
         if not isinstance(asyncSocketsPool, XAsyncSocketsPool) :
@@ -197,7 +181,6 @@ class MicroWebSrv2 :
         self._xasSrv.OnClosed         = self._onSrvClosed
         self.Log('Server listening on %s:%s.' % self._bindAddr, MicroWebSrv2.INFO)
 
-    # ------------------------------------------------------------------------
 
     def StartManaged(self, parllProcCount=1, procStackSize=0) :
         if not isinstance(parllProcCount, int) or parllProcCount < 0 :
@@ -229,7 +212,6 @@ class MicroWebSrv2 :
             except :
                 pass
 
-    # ------------------------------------------------------------------------
 
     def Stop(self) :
         if self._xasSrv :
@@ -240,7 +222,6 @@ class MicroWebSrv2 :
             self._xasPool.StopWaitEvents()
             self._xasPool = None
 
-    # ------------------------------------------------------------------------
 
     def Log(self, msg, msgType) :
         if self._onLogging :
@@ -254,7 +235,6 @@ class MicroWebSrv2 :
         if t :
             print('MWS2-%s> %s' % (t, msg))
 
-    # ------------------------------------------------------------------------
 
     def ResolvePhysicalPath(self, urlPath) :
         if not isinstance(urlPath, str) or len(urlPath) == 0 :
@@ -272,7 +252,6 @@ class MicroWebSrv2 :
         except :
             return None
 
-    # ------------------------------------------------------------------------
 
     def _onSrvClientAccepted(self, xAsyncTCPServer, xAsyncTCPClient) :
         if self._sslContext :
@@ -287,18 +266,15 @@ class MicroWebSrv2 :
                 return
         HttpRequest(self, xAsyncTCPClient)
 
-    # ------------------------------------------------------------------------
 
     def _onSrvClosed(self, xAsyncTCPServer, closedReason) :
         self.Log('Server %s:%s closed.' % self._bindAddr, MicroWebSrv2.INFO)
 
-    # ------------------------------------------------------------------------
 
     def _validateChangeConf(self, name='Configuration') :
         if self._xasSrv :
             raise MicroWebSrv2Exception('%s cannot be changed while the server is running.' % name)
 
-    # ------------------------------------------------------------------------
 
     def EnableSSL(self, certFile, keyFile, caFile=None) :
         import ssl
@@ -324,7 +300,6 @@ class MicroWebSrv2 :
         if self._bindAddr[1] == 80 :
             self._bindAddr = (self._bindAddr[0], 443)
 
-    # ------------------------------------------------------------------------
 
     def DisableSSL(self) :
         self._validateChangeConf()
@@ -332,7 +307,6 @@ class MicroWebSrv2 :
         if self._bindAddr[1] == 443 :
             self._bindAddr = (self._bindAddr[0], 80)
 
-    # ------------------------------------------------------------------------
 
     def SetEmbeddedConfig(self) :
         self._validateChangeConf()
@@ -342,7 +316,6 @@ class MicroWebSrv2 :
         self._keepAlloc     = True
         self._maxContentLen = 16*1024
 
-    # ------------------------------------------------------------------------
 
     def SetLightConfig(self) :
         self._validateChangeConf()
@@ -352,7 +325,6 @@ class MicroWebSrv2 :
         self._keepAlloc     = True
         self._maxContentLen = 512*1024
 
-    # ------------------------------------------------------------------------
 
     def SetNormalConfig(self) :
         self._validateChangeConf()
@@ -362,7 +334,6 @@ class MicroWebSrv2 :
         self._keepAlloc     = True
         self._maxContentLen = 2*1024*1024
 
-    # ------------------------------------------------------------------------
 
     def SetLargeConfig(self) :
         self._validateChangeConf()
@@ -372,7 +343,6 @@ class MicroWebSrv2 :
         self._keepAlloc     = True
         self._maxContentLen = 8*1024*1024
 
-    # ------------------------------------------------------------------------
 
     @property
     def IsRunning(self) :
@@ -380,7 +350,6 @@ class MicroWebSrv2 :
                  self._xasPool.WaitEventsProcessing and \
                  self._xasSrv is not None )
 
-    # ------------------------------------------------------------------------
 
     @property
     def ConnQueueCapacity(self) :
@@ -393,7 +362,6 @@ class MicroWebSrv2 :
         self._validateChangeConf('"ConnQueueCapacity"')
         self._backlog = value
 
-    # ------------------------------------------------------------------------
 
     @property
     def BufferSlotsCount(self) :
@@ -406,7 +374,6 @@ class MicroWebSrv2 :
         self._validateChangeConf('"BufferSlotsCount"')
         self._slotsCount = value
 
-    # ------------------------------------------------------------------------
 
     @property
     def BufferSlotSize(self) :
@@ -419,7 +386,6 @@ class MicroWebSrv2 :
         self._validateChangeConf('"BufferSlotSize"')
         self._slotsSize = value
 
-    # ------------------------------------------------------------------------
 
     @property
     def KeepAllocBufferSlots(self) :
@@ -432,7 +398,6 @@ class MicroWebSrv2 :
         self._validateChangeConf('"KeepAllocBufferSlots"')
         self._keepAlloc = value
 
-    # ------------------------------------------------------------------------
 
     @property
     def MaxRequestContentLength(self) :
@@ -444,7 +409,6 @@ class MicroWebSrv2 :
             raise ValueError('"MaxRequestContentLength" must be a positive integer.')
         self._maxContentLen = value
 
-    # ------------------------------------------------------------------------
 
     @property
     def BindAddress(self) :
@@ -461,13 +425,11 @@ class MicroWebSrv2 :
         self._validateChangeConf('"BindAddress"')
         self._bindAddr = value
 
-    # ------------------------------------------------------------------------
 
     @property
     def IsSSLEnabled(self) :
         return (self._sslContext is not None)
 
-    # ------------------------------------------------------------------------
 
     @property
     def RootPath(self) :
@@ -480,7 +442,6 @@ class MicroWebSrv2 :
         self._validateChangeConf('"RootPath"')
         self._rootPath = (value[:-1] if value.endswith('/') else value)
 
-    # ------------------------------------------------------------------------
 
     @property
     def RequestsTimeoutSec(self) :
@@ -492,7 +453,6 @@ class MicroWebSrv2 :
             raise ValueError('"RequestsTimeoutSec" must be a positive integer.')
         self._timeoutSec = value
 
-    # ------------------------------------------------------------------------
 
     @property
     def NotFoundURL(self) :
@@ -504,7 +464,6 @@ class MicroWebSrv2 :
             raise ValueError('"NotFoundURL" must be a string or None.')
         self._notFoundURL = value
 
-    # ------------------------------------------------------------------------
 
     @property
     def AllowAllOrigins(self) :
@@ -516,7 +475,6 @@ class MicroWebSrv2 :
             raise ValueError('"AllowAllOrigins" must be a boolean.')
         self._allowAllOrigins = value
 
-    # ------------------------------------------------------------------------
 
     @property
     def CORSAllowAll(self) :
@@ -528,7 +486,6 @@ class MicroWebSrv2 :
             raise ValueError('"CORSAllowAll" must be a boolean.')
         self._corsAllowAll = value
 
-    # ------------------------------------------------------------------------
 
     @property
     def OnLogging(self) :
@@ -539,7 +496,3 @@ class MicroWebSrv2 :
         if type(value) is not type(lambda x:x) :
             raise ValueError('"OnLogging" must be a function.')
         self._onLogging = value
-
-# ============================================================================
-# ============================================================================
-# ============================================================================
