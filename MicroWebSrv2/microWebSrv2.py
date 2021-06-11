@@ -122,18 +122,20 @@ class MicroWebSrv2 :
             raise ValueError('"modName" must be a not empty string.')
         if modName in MicroWebSrv2._modules :
             raise MicroWebSrv2Exception('Module "%s" is already loaded.' % modName)
-        try :
-            modPath  = MicroWebSrv2.__module__.split('microWebSrv2')[0] \
-                     + ('mods.%s' % modName)
-            module   = getattr(__import__(modPath).mods, modName)
-            modClass = getattr(module, modName)
-            if type(modClass) is not type :
+        try:
+            modPath  = MicroWebSrv2.__module__.split('microWebSrv2')[0] + ('mods.%s' % modName)
+            obj = __import__(modPath, globals(), locals(), [], 0)
+            modClass = getattr(obj, modName)
+            if type(modClass) is not type:
                 raise Exception
             modInstance = modClass()
             MicroWebSrv2._modules[modName] = modInstance
             return modInstance
-        except :
+        except Exception as e:
+            import sys
+            sys.print_exception(e)
             raise MicroWebSrv2Exception('Cannot load module "%s".' % modName)
+
 
     # ------------------------------------------------------------------------
 
@@ -295,7 +297,7 @@ class MicroWebSrv2 :
     def _validateChangeConf(self, name='Configuration') :
         if self._xasSrv :
             raise MicroWebSrv2Exception('%s cannot be changed while the server is running.' % name)
-    
+
     # ------------------------------------------------------------------------
 
     def EnableSSL(self, certFile, keyFile, caFile=None) :
@@ -330,7 +332,7 @@ class MicroWebSrv2 :
         if self._bindAddr[1] == 443 :
             self._bindAddr = (self._bindAddr[0], 80)
 
-    # ------------------------------------------------------------------------    
+    # ------------------------------------------------------------------------
 
     def SetEmbeddedConfig(self) :
         self._validateChangeConf()
