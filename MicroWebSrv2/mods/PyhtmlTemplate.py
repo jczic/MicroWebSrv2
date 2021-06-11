@@ -9,9 +9,6 @@ import re
 from   _thread  import start_new_thread
 
 
-: PyhtmlTemplate Module )=================================
-
-
 class PyhtmlTemplate :
 
     _CODE_CONTENT_DEBUG = """\
