@@ -1362,6 +1362,7 @@ except KeyboardInterrupt :
       | ELIF        | `{{ elif` *Python condition* `}}` *html bloc* `{{ end }}`                 |
       | ELSE        | `{{ else }}` *html bloc* `{{ end }}`                                      |
       | FOR         | `{{ for` *identifier* `in` *Python iterator* `}}` *html bloc* `{{ end }}` |
+      | INCLUDE     | `{{ include` *file.pyhtml* `}}` |
       | Expression  | `{{` *Python expression* `}}`                                             |
 
       :cyclone: See the **[test.pyhtml](https://github.com/jczic/MicroWebSrv2/blob/master/www/test.pyhtml)** page for the example:
