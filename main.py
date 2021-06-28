@@ -1,3 +1,5 @@
+
+
 from MicroWebSrv2  import *
 from time          import sleep
 from _thread       import allocate_lock
@@ -39,7 +41,7 @@ def RequestTestPost(microWebSrv2, request) :
 
 @WebRoute(POST, '/test-post', name='TestPost2/2')
 def RequestTestPost(microWebSrv2, request) :
-    data = request.GetPostedForm()
+    data = request.GetPostedURLEncodedForm()
     try :
         firstname = data['firstname']
         lastname  = data['lastname']
@@ -59,67 +61,6 @@ def RequestTestPost(microWebSrv2, request) :
     </html>
     """ % ( MicroWebSrv2.HTMLEscape(firstname),
             MicroWebSrv2.HTMLEscape(lastname) )
-    request.Response.ReturnOk(content)
-
-# ------------------------------------------------------------------------
-
-@WebRoute(GET, '/test-upload', name='TestUpload1/2')
-def RequestTestPost(microWebSrv2, request):
-    content = """\
-        <!DOCTYPE html>
-        <html>
-
-        <head>
-        <title>File Upload Test</title>
-        </head>
-
-        <body>
-        <h2>MicroWebSrv2 - File Upload Test</h2>
-        <form action="/test-upload"
-                method="post"
-                enctype="multipart/form-data"
-                >
-            First name: <input type="text" name="firstname"><br />
-            Last name: <input type="text" name="lastname"><br />
-            File: <INPUT TYPE=FILE ID=UPLOAD_IMG_ID NAME=UPLOAD_FILE />
-            <input type="submit" value="OK">
-        </form>
-        </body>
-
-        </html>
-    """
-    request.Response.ReturnOk(content)
-
-# ------------------------------------------------------------------------
-
-@WebRoute(POST, '/test-upload', name='TestUpload2/2')
-def RequestTestPost(microWebSrv2, request) :
-    data = request.GetPostedForm()
-    try:
-        firstname = data['firstname']
-        lastname = data['lastname']
-        saved_as = data['saved_as']
-        filename = data['UPLOAD_FILE']
-    except:
-        firstname = ""
-        lastname = ""
-        filename = ""
-    content = """\
-    <!DOCTYPE html>
-    <html>
-        <head>
-            <title>File upload result</title>
-        </head>
-        <body>
-            <h2>File upload result</h2>
-            Hello %s %s :) -- you uploaded %s (server saved to %s)<br />
-        </body>
-    </html>
-    """ % (MicroWebSrv2.HTMLEscape(firstname),
-           MicroWebSrv2.HTMLEscape(lastname),
-           MicroWebSrv2.HTMLEscape(filename),
-           MicroWebSrv2.HTMLEscape(saved_as)
-           )
     request.Response.ReturnOk(content)
 
 # ============================================================================
@@ -222,15 +163,8 @@ mws2 = MicroWebSrv2()
 # For embedded MicroPython, use a very light configuration,
 mws2.SetEmbeddedConfig()
 
-# Allow up to 32 MB upload
-mws2.MaxRequestContentLength = 32 * 1024 * 1024
-
-# On a slower network, upload might take a while
-mws2.RequestsTimeoutSec = 60
-
 # All pages not found will be redirected to the home '/',
 mws2.NotFoundURL = '/'
-# mws2.BindAddress = ("0.0.0.0", 8765)
 
 # Starts the server as easily as possible in managed mode,
 mws2.StartManaged()

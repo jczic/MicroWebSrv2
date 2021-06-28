@@ -1,3 +1,4 @@
+
 """
 The MIT License (MIT)
 Copyright © 2019 Jean-Christophe Bos & HC² (www.hc2.fr)
@@ -88,7 +89,6 @@ class MicroWebSrv2 :
         self._bindAddr        = ('0.0.0.0', 80)
         self._sslContext      = None
         self._rootPath        = 'www'
-        self._uploadPath      = '/tmp/mws2'
         self._timeoutSec      = 2
         self._notFoundURL     = None
         self._allowAllOrigins = False
@@ -295,7 +295,7 @@ class MicroWebSrv2 :
     def _validateChangeConf(self, name='Configuration') :
         if self._xasSrv :
             raise MicroWebSrv2Exception('%s cannot be changed while the server is running.' % name)
-
+    
     # ------------------------------------------------------------------------
 
     def EnableSSL(self, certFile, keyFile, caFile=None) :
@@ -330,7 +330,7 @@ class MicroWebSrv2 :
         if self._bindAddr[1] == 443 :
             self._bindAddr = (self._bindAddr[0], 80)
 
-    # ------------------------------------------------------------------------
+    # ------------------------------------------------------------------------    
 
     def SetEmbeddedConfig(self) :
         self._validateChangeConf()
@@ -477,19 +477,6 @@ class MicroWebSrv2 :
             raise ValueError('"RootPath" must be a not empty string.')
         self._validateChangeConf('"RootPath"')
         self._rootPath = (value[:-1] if value.endswith('/') else value)
-
-    # ------------------------------------------------------------------------
-
-    @property
-    def UploadPath(self):
-        return self._uploadPath
-
-    @UploadPath.setter
-    def UploadPath(self, value):
-        if not isinstance(value, str) or len(value) == 0:
-            raise ValueError('"UploadPath" must be a not empty string.')
-        self._validateChangeConf('"UploadPath"')
-        self._uploadPath = (value[:-1] if value.endswith('/') else value)
 
     # ------------------------------------------------------------------------
 
