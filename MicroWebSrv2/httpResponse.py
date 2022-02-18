@@ -355,6 +355,7 @@ class HttpResponse :
         try :
             size = stat(filename+".gz")[6]
             filename += ".gz"
+            self.SetHeader('Content-Encoding', 'gzip')
         except :
             try :
                 size = stat(filename)[6]
