@@ -1410,9 +1410,11 @@ except KeyboardInterrupt :
 
   **Jean-Christophe Bos** (:fr:)
   - GitHub: *[@jczic](https://github.com/jczic)*
-  - Email:  *<jcb@hc2.fr>*
-  - Web:    *[www.hc2.fr](https://www.hc2.fr)*
-
+  - Email:  *<jczic.bos@gmail.com>*
+  - Profil: *[LinkedIn](https://www.linkedin.com/in/jczic)*
+  - Music:  *[SoundCloud](https://soundcloud.com/jczic/sets/electro-pulse)*
+            *[Spotify](https://open.spotify.com/album/5fUd57GcAIcdUn9NX3fviG)*
+            *[YouTube](https://www.youtube.com/playlist?list=PL9CsGuMbcLaU02VKS7jtR6LaDNpq7MZEq)*
 ---
 
 <a name="license"></a>
