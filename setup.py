@@ -11,7 +11,7 @@ setup(
 	description='Embedded webserver for MicroPython and CPython',
 	long_description=README,
 	author='Jean-Christophe Bos',
-	author_email='jcb@hc2.fr',
+	author_email='jczic.bos@gmail.com',
 	url='https://github.com/jczic/MicroWebSrv2',
 	download_url='https://github.com/jczic/MicroWebSrv2/archive/master.zip',
 	packages=find_packages(),
