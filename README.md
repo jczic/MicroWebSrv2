@@ -1,5 +1,15 @@
  
-![New microWebSrv2](/img/microWebSrv2.png "microWebSrv2")
+<h3>
+  <p align="center">
+    Also check out the new ESP32 MPY-Jama free IDE below:
+  </p>
+</h3>
+
+<p align="center">
+  <a href="https://github.com/jczic/ESP32-MPY-Jama"><img src="https://github.com/jczic/ESP32-MPY-Jama/raw/master/img/ESP32%20MPY-Jama%20NEW.png" alt="New microWebSrv2" width="350" valign="middle"></a>
+</p>
+
+---
 
 ![Release](https://img.shields.io/github/v/release/jczic/microwebsrv2?include_prereleases&color=success)
 ![Size](https://img.shields.io/github/languages/code-size/jczic/microwebsrv2?color=blue)
