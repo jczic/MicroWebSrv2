@@ -75,8 +75,8 @@ class WebSockets :
 
     @OnWebSocketAccepted.setter
     def OnWebSocketAccepted(self, value) :
-        if type(value) is not type(lambda x:x) :
-            raise ValueError('"OnWebSocketAccepted" must be a function.')
+        #if type(value) is not type(lambda x:x) :
+        #    raise ValueError('"OnWebSocketAccepted" must be a function.')
         self._onWebSocketAccepted = value
 
 # ============================================================================
@@ -468,8 +468,8 @@ class WebSocket :
 
     @OnClosed.setter
     def OnClosed(self, value) :
-        if type(value) is not type(lambda x:x) :
-            raise ValueError('"OnClosed" must be a function.')
+        #if type(value) is not type(lambda x:x) :
+        #    raise ValueError('"OnClosed" must be a function.')
         self._onClosed = value
 
 # ============================================================================
