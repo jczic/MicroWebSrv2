@@ -160,20 +160,21 @@ class HttpRequest :
 
     def _routeRequest(self) :
         try :
+            currentResp = self._response
             if self._routeResult.Args :
                 self._routeResult.Handler(self._mws2, self, self._routeResult.Args)
             else :
                 self._routeResult.Handler(self._mws2, self)
-            if not self._response.HeadersSent :
+            if not currentResp.HeadersSent :
                 self._mws2.Log( 'No response was sent from route %s.'
                                 % self._routeResult,
                                 self._mws2.WARNING )
-                self._response.ReturnNotImplemented()
+                currentResp.ReturnNotImplemented()
         except Exception as ex :
             self._mws2.Log( 'Exception raised from route %s: %s'
                             % (self._routeResult, ex),
                             self._mws2.ERROR )
-            self._response.ReturnInternalServerError()
+            currentResp.ReturnInternalServerError()
 
     # ------------------------------------------------------------------------
 

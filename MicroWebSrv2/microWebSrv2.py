@@ -61,8 +61,6 @@ class MicroWebSrv2 :
         "<" : "&lt;"
     }
 
-    _STAT_MODE_DIR = 1 << 14
-
     DEBUG        = 0x00
     INFO         = 0x01
     WARNING      = 0x02
@@ -81,21 +79,19 @@ class MicroWebSrv2 :
     # ------------------------------------------------------------------------
 
     def __init__(self) :
-        self._backlog         = None
-        self._slotsCount      = None
-        self._slotsSize       = None
-        self._keepAlloc       = None
-        self._maxContentLen   = None
-        self._bindAddr        = ('0.0.0.0', 80)
-        self._sslContext      = None
-        self._rootPath        = 'www'
-        self._timeoutSec      = 2
-        self._notFoundURL     = None
-        self._allowAllOrigins = False
-        self._corsAllowAll    = False
-        self._onLogging       = None
-        self._xasSrv          = None
-        self._xasPool         = None
+        self._backlog       = None
+        self._slotsCount    = None
+        self._slotsSize     = None
+        self._keepAlloc     = None
+        self._maxContentLen = None
+        self._bindAddr      = ('0.0.0.0', 80)
+        self._sslContext    = None
+        self._rootPath      = 'www'
+        self._timeoutSec    = 2
+        self._notFoundURL   = None
+        self._onLogging     = None
+        self._xasSrv        = None
+        self._xasPool       = None
         self.SetNormalConfig()
 
     # ------------------------------------------------------------------------
@@ -104,15 +100,11 @@ class MicroWebSrv2 :
     def _physPathExists(physPath) :
         try :
             stat(physPath)
-            return True
+        except OSError as ose :
+            return (ose.args[0] == 22)
         except :
             return False
-
-    # ------------------------------------------------------------------------
-
-    @staticmethod
-    def _physPathIsDir(physPath) :
-        return (stat(physPath)[0] & MicroWebSrv2._STAT_MODE_DIR != 0)
+        return True
 
     # ------------------------------------------------------------------------
 
@@ -125,7 +117,7 @@ class MicroWebSrv2 :
         try :
             modPath  = MicroWebSrv2.__module__.split('microWebSrv2')[0] \
                      + ('mods.%s' % modName)
-            module   = getattr(__import__(modPath).mods, modName)
+            module   = __import__(modPath, { }, { }, [modName])
             modClass = getattr(module, modName)
             if type(modClass) is not type :
                 raise Exception
@@ -257,18 +249,20 @@ class MicroWebSrv2 :
     def ResolvePhysicalPath(self, urlPath) :
         if not isinstance(urlPath, str) or len(urlPath) == 0 :
             raise ValueError('"urlPath" must be a not empty string.')
-        try :
-            physPath = self._rootPath + urlPath.replace('..', '/')
-            if physPath.endswith('/') :
-                physPath = physPath[:-1]
-            if MicroWebSrv2._physPathIsDir(physPath) :
-                for filename in MicroWebSrv2._DEFAULT_PAGES :
-                    p = physPath + '/' + filename
-                    if MicroWebSrv2._physPathExists(p) :
-                        return p
-            return physPath
-        except :
+        physPath = self._rootPath + urlPath.replace('..', '/')
+        endSlash = physPath.endswith('/')
+        physDir  = physPath + ('/' if not endSlash else '')
+        if MicroWebSrv2._physPathExists(physDir) :
+            for filename in MicroWebSrv2._DEFAULT_PAGES :
+                p = physDir + filename
+                if MicroWebSrv2._physPathExists(p) :
+                    return p
+            return physDir
+        elif endSlash :
             return None
+        if MicroWebSrv2._physPathExists(physPath) :
+            return physPath
+        return None
 
     # ------------------------------------------------------------------------
 
@@ -374,9 +368,7 @@ class MicroWebSrv2 :
 
     @property
     def IsRunning(self) :
-        return ( self._xasPool is not None and \
-                 self._xasPool.WaitEventsProcessing and \
-                 self._xasSrv is not None )
+        return (self._xasSrv is not None)
 
     # ------------------------------------------------------------------------
 
@@ -476,7 +468,7 @@ class MicroWebSrv2 :
         if not isinstance(value, str) or len(value) == 0 :
             raise ValueError('"RootPath" must be a not empty string.')
         self._validateChangeConf('"RootPath"')
-        self._rootPath = (value[:-1] if value.endswith('/') else value)
+        self._rootPath = value
 
     # ------------------------------------------------------------------------
 
@@ -501,30 +493,6 @@ class MicroWebSrv2 :
         if value is not None and not isinstance(value, str) :
             raise ValueError('"NotFoundURL" must be a string or None.')
         self._notFoundURL = value
-
-    # ------------------------------------------------------------------------
-
-    @property
-    def AllowAllOrigins(self) :
-        return self._allowAllOrigins
-
-    @AllowAllOrigins.setter
-    def AllowAllOrigins(self, value) :
-        if not isinstance(value, bool) :
-            raise ValueError('"AllowAllOrigins" must be a boolean.')
-        self._allowAllOrigins = value
-
-    # ------------------------------------------------------------------------
-
-    @property
-    def CORSAllowAll(self) :
-        return self._corsAllowAll
-
-    @CORSAllowAll.setter
-    def CORSAllowAll(self, value) :
-        if not isinstance(value, bool) :
-            raise ValueError('"CORSAllowAll" must be a boolean.')
-        self._corsAllowAll = value
 
     # ------------------------------------------------------------------------
 
