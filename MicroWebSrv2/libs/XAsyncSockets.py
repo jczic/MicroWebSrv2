@@ -663,6 +663,9 @@ class XAsyncTCPClient(XAsyncSocket) :
         if self._wrBufView :
             try :
                 n = self._socket.send(self._wrBufView)
+            except ssl.SSLEOFError :
+                self._close()
+                return
             except :
                 return
             self._wrBufView = self._wrBufView[n:]
