@@ -588,11 +588,14 @@ class XAsyncTCPClient(XAsyncSocket) :
                                 break
                             return
                         elif b != b'\r' :
-                            if self._rdLinePos < self._recvBufSlot.Size :
-                                self._recvBufSlot.Buffer[self._rdLinePos] = ord(b)
-                                self._rdLinePos += 1
-                            else :
-                                self._close()
+                            try :
+                                if self._rdLinePos < self._recvBufSlot.Size :
+                                    self._recvBufSlot.Buffer[self._rdLinePos] = ord(b)
+                                    self._rdLinePos += 1
+                                else :
+                                    self._close()
+                                    return
+                            except :
                                 return
                     else :
                         self._close(XClosedReason.ClosedByPeer)
