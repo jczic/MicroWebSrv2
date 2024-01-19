@@ -679,6 +679,8 @@ class XAsyncTCPClient(XAsyncSocket) :
                         self._onDataSent(self, self._onDataSentArg)
                     except Exception as ex :
                         raise XAsyncTCPClientException('Error when handling the "OnDataSent" event : %s' % ex)
+        else :
+            self._asyncSocketsPool.NotifyNextReadyForWriting(self, False)
 
     # ------------------------------------------------------------------------
 
