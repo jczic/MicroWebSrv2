@@ -835,6 +835,7 @@ class XAsyncTCPClient(XAsyncSocket) :
     @property
     def IsSSL(self) :
         return ( hasattr(ssl, 'SSLContext') and \
+                 hasattr(ssl, 'SSLSocket')  and \
                  isinstance(self._socket, ssl.SSLSocket) )
 
     @property
