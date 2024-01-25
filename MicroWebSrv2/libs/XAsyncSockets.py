@@ -666,10 +666,9 @@ class XAsyncTCPClient(XAsyncSocket) :
         if self._wrBufView :
             try :
                 n = self._socket.send(self._wrBufView)
-            except ssl.SSLEOFError :
-                self._close()
-                return
-            except :
+            except Exception as ex :
+                if hasattr(ssl, 'SSLEOFError') and isinstance(ex, ssl.SSLEOFError) :
+                    self._close()
                 return
             self._wrBufView = self._wrBufView[n:]
             if not self._wrBufView :
