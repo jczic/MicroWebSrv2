@@ -26,6 +26,8 @@ class XAsyncSocketsPoolException(Exception) :
 
 class XAsyncSocketsPool :
 
+    _CHECK_SEC_INTERVAL = 1.0
+
     def __init__(self) :
         self._processing   = False
         self._threadsCount = 0
@@ -101,8 +103,6 @@ class XAsyncSocketsPool :
 
     # ------------------------------------------------------------------------
 
-    _CHECK_SEC_INTERVAL = 1.0
-
     def _processWaitEvents(self) :
         self._incThreadsCount()
         timeSec = perf_counter()
@@ -112,10 +112,11 @@ class XAsyncSocketsPool :
                     rd, wr, ex = select( self._readList,
                                          self._writeList,
                                          self._readList,
-                                         self._CHECK_SEC_INTERVAL )
+                                         XAsyncSocketsPool._CHECK_SEC_INTERVAL )
                 except KeyboardInterrupt as ex :
                     raise ex
                 except :
+                    print('a')
                     continue
                 if not self._processing :
                     break
@@ -126,12 +127,13 @@ class XAsyncSocketsPool :
                             if socketsList is ex :
                                 asyncSocket.OnExceptionalCondition()
                             elif socketsList is wr :
+                                self._socketListRemove(socket, self._writeList)
                                 asyncSocket.OnReadyForWriting()
                             else :
                                 asyncSocket.OnReadyForReading()
                             self._socketListRemove(socket, self._handlingList)
                 sec = perf_counter()
-                if sec > timeSec + self._CHECK_SEC_INTERVAL :
+                if sec > timeSec + XAsyncSocketsPool._CHECK_SEC_INTERVAL :
                     timeSec = sec
                     for asyncSocket in list(self._asyncSockets.values()) :
                         if asyncSocket.ExpireTimeSec and \
@@ -203,8 +205,10 @@ class XAsyncSocketsPool :
             try :
                 for i in range(threadsCount) :
                     start_new_thread(self._processWaitEvents, ())
+                    if i < threadsCount-1 :
+                        sleep(XAsyncSocketsPool._CHECK_SEC_INTERVAL / threadsCount)
                 while self._processing and self._threadsCount < threadsCount :
-                    sleep(0.001)
+                    sleep(0.010)
             except :
                 self._processing = False
                 raise XAsyncSocketsPoolException('AsyncWaitEvents : Fatal error to create new threads...')
@@ -669,17 +673,17 @@ class XAsyncTCPClient(XAsyncSocket) :
             except Exception as ex :
                 if hasattr(ssl, 'SSLEOFError') and isinstance(ex, ssl.SSLEOFError) :
                     self._close()
+                else :
+                    self._asyncSocketsPool.NotifyNextReadyForWriting(self, True)
                 return
             self._wrBufView = self._wrBufView[n:]
-            if not self._wrBufView :
-                self._asyncSocketsPool.NotifyNextReadyForWriting(self, False)
-                if self._onDataSent :
-                    try :
-                        self._onDataSent(self, self._onDataSentArg)
-                    except Exception as ex :
-                        raise XAsyncTCPClientException('Error when handling the "OnDataSent" event : %s' % ex)
-        else :
-            self._asyncSocketsPool.NotifyNextReadyForWriting(self, False)
+            if self._wrBufView :
+                self._asyncSocketsPool.NotifyNextReadyForWriting(self, True)
+            elif self._onDataSent :
+                try :
+                    self._onDataSent(self, self._onDataSentArg)
+                except Exception as ex :
+                    raise XAsyncTCPClientException('Error when handling the "OnDataSent" event : %s' % ex)
 
     # ------------------------------------------------------------------------
 
@@ -734,7 +738,6 @@ class XAsyncTCPClient(XAsyncSocket) :
                     self._onDataSent    = onDataSent
                     self._onDataSentArg = onDataSentArg
                     self._asyncSocketsPool.NotifyNextReadyForWriting(self, True)
-                    self.OnReadyForWriting()
                     return True
             except :
                 pass
@@ -938,13 +941,12 @@ class XAsyncUDPDatagram(XAsyncSocket) :
                     except Exception as ex :
                         raise XAsyncUDPDatagramException('Error when handling the "OnFailsToSend" event : %s' % ex)
             if not self._wrDgramFiFo.Empty :
-                return
-        self._asyncSocketsPool.NotifyNextReadyForWriting(self, False)
-        if self._onDataSent :
-            try :
-                self._onDataSent(self, self._onDataSentArg)
-            except Exception as ex :
-                raise XAsyncUDPDatagramException('Error when handling the "OnDataSent" event : %s' % ex)
+                self._asyncSocketsPool.NotifyNextReadyForWriting(self, True)
+            if self._onDataSent :
+                try :
+                    self._onDataSent(self, self._onDataSentArg)
+                except Exception as ex :
+                    raise XAsyncUDPDatagramException('Error when handling the "OnDataSent" event : %s' % ex)
 
     # ------------------------------------------------------------------------
 
