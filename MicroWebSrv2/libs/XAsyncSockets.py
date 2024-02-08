@@ -40,28 +40,24 @@ class XAsyncSocketsPool :
     # ------------------------------------------------------------------------
 
     def _incThreadsCount(self) :
-        self._opLock.acquire()
-        self._threadsCount += 1
-        self._opLock.release()
+        with self._opLock :
+            self._threadsCount += 1
 
     # ------------------------------------------------------------------------
 
     def _decThreadsCount(self) :
-        self._opLock.acquire()
-        self._threadsCount -= 1
-        self._opLock.release()
+        with self._opLock :
+            self._threadsCount -= 1
 
     # ------------------------------------------------------------------------
 
     def _addSocket(self, socket, asyncSocket) :
         if socket :
             socketno = socket.fileno()
-            self._opLock.acquire()
-            ok = (socketno not in self._asyncSockets)
-            if ok :
-                self._asyncSockets[socketno] = asyncSocket
-            self._opLock.release()
-            return ok
+            with self._opLock :
+                if socketno not in self._asyncSockets :
+                    self._asyncSockets[socketno] = asyncSocket
+                    return True
         return False
 
     # ------------------------------------------------------------------------
@@ -69,37 +65,33 @@ class XAsyncSocketsPool :
     def _removeSocket(self, socket) :
         if socket :
             socketno = socket.fileno()
-            self._opLock.acquire()
-            ok = (socketno in self._asyncSockets)
-            if ok :
-                del self._asyncSockets[socketno]
-                if socket in self._readList :
-                    self._readList.remove(socket)
-                if socket in self._writeList :
-                    self._writeList.remove(socket)
-            self._opLock.release()
-            return ok
+            with self._opLock :
+                if socketno in self._asyncSockets :
+                    del self._asyncSockets[socketno]
+                    if socket in self._readList :
+                        self._readList.remove(socket)
+                    if socket in self._writeList :
+                        self._writeList.remove(socket)
+                    return True
         return False
 
     # ------------------------------------------------------------------------
 
     def _socketListAdd(self, socket, socketsList) :
-        self._opLock.acquire()
-        ok = (socket.fileno() in self._asyncSockets and socket not in socketsList)
-        if ok :
-            socketsList.append(socket)
-        self._opLock.release()
-        return ok
+        with self._opLock :
+            if socket.fileno() in self._asyncSockets and socket not in socketsList :
+                socketsList.append(socket)
+                return True
+        return False
 
     # ------------------------------------------------------------------------
 
     def _socketListRemove(self, socket, socketsList) :
-        self._opLock.acquire()
-        ok = (socket.fileno() in self._asyncSockets and socket in socketsList)
-        if ok :
-            socketsList.remove(socket)
-        self._opLock.release()
-        return ok
+        with self._opLock :
+            if socket.fileno() in self._asyncSockets and socket in socketsList :
+                socketsList.remove(socket)
+                return True
+        return False
 
     # ------------------------------------------------------------------------
 
@@ -116,22 +108,27 @@ class XAsyncSocketsPool :
                 except KeyboardInterrupt as ex :
                     raise ex
                 except :
-                    print('a')
                     continue
                 if not self._processing :
                     break
                 for socketsList in ex, wr, rd :
                     for socket in socketsList :
-                        asyncSocket = self._asyncSockets.get(socket.fileno(), None)
-                        if asyncSocket and self._socketListAdd(socket, self._handlingList) :
-                            if socketsList is ex :
-                                asyncSocket.OnExceptionalCondition()
-                            elif socketsList is wr :
-                                self._socketListRemove(socket, self._writeList)
-                                asyncSocket.OnReadyForWriting()
-                            else :
-                                asyncSocket.OnReadyForReading()
-                            self._socketListRemove(socket, self._handlingList)
+                        with self._opLock :
+                            asyncSocket = self._asyncSockets.get(socket.fileno(), None)
+                        if asyncSocket :
+                            if self._socketListAdd(socket, self._handlingList) :
+                                if socketsList is ex :
+                                    asyncSocket.OnExceptionalCondition()
+                                elif socketsList is wr :
+                                    self._socketListRemove(socket, self._writeList)
+                                    asyncSocket.OnReadyForWriting()
+                                else :
+                                    asyncSocket.OnReadyForReading()
+                                self._socketListRemove(socket, self._handlingList)
+                        else :
+                            self._socketListRemove(socket, self._readList)
+                            self._socketListRemove(socket, self._writeList)
+                            socket.close()
                 sec = perf_counter()
                 if sec > timeSec + XAsyncSocketsPool._CHECK_SEC_INTERVAL :
                     timeSec = sec
