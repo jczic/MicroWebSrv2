@@ -9,27 +9,24 @@ from   .httpResponse  import HttpResponse
 from   binascii       import a2b_base64
 import json
 
-# ============================================================================
-# ===( HttpRequest )==========================================================
-# ============================================================================
+
+
+
 
 class HttpRequest :
 
     MAX_RECV_HEADER_LINES = 100
 
-    # ------------------------------------------------------------------------
 
     def __init__(self, microWebSrv2, xasCli) :
         self._mws2   = microWebSrv2
         self._xasCli = xasCli
         self._waitForRecvRequest()
 
-    # ------------------------------------------------------------------------
 
     def _recvLine(self, onRecv) :
         self._xasCli.AsyncRecvLine(onLineRecv=onRecv, timeoutSec=self._mws2._timeoutSec)
 
-    # ------------------------------------------------------------------------
 
     def _waitForRecvRequest(self) :
         self._httpVer  = ''
@@ -40,7 +37,6 @@ class HttpRequest :
         self._response = HttpResponse(self._mws2, self)
         self._recvLine(self._onFirstLineRecv)
 
-    # ------------------------------------------------------------------------
 
     def _onFirstLineRecv(self, xasCli, line, arg) :
         try :
@@ -65,7 +61,6 @@ class HttpRequest :
         except :
             self._response.ReturnBadRequest()
 
-    # ------------------------------------------------------------------------
 
     def _onHeaderLineRecv(self, xasCli, line, arg) :
         try :
@@ -83,7 +78,6 @@ class HttpRequest :
         except :
             self._response.ReturnBadRequest()
 
-    # ------------------------------------------------------------------------
 
     def _processRequest(self) :
         if not self._processRequestModules() :
@@ -113,7 +107,6 @@ class HttpRequest :
             else :
                 self._response.ReturnNotImplemented()
 
-    # ------------------------------------------------------------------------
 
     def _processRequestModules(self) :
         for modName, modInstance in self._mws2._modules.items() :
@@ -127,7 +120,6 @@ class HttpRequest :
                                 self._mws2.ERROR )
         return False
 
-    # ------------------------------------------------------------------------
 
     def _processRequestRoutes(self) :
         self._routeResult = ResolveRoute(self._method, self._path)
@@ -156,7 +148,6 @@ class HttpRequest :
             return True
         return False
 
-    # ------------------------------------------------------------------------
 
     def _routeRequest(self) :
         try :
@@ -176,7 +167,6 @@ class HttpRequest :
                             self._mws2.ERROR )
             currentResp.ReturnInternalServerError()
 
-    # ------------------------------------------------------------------------
 
     def GetPostedURLEncodedForm(self) :
         res = { }
@@ -192,7 +182,6 @@ class HttpRequest :
                 pass
         return res
 
-    # ------------------------------------------------------------------------
 
     def GetPostedJSONObject(self) :
         if self.ContentType.lower() == 'application/json' :
@@ -203,14 +192,12 @@ class HttpRequest :
                 pass
         return None
 
-    # ------------------------------------------------------------------------
 
     def GetHeader(self, name) :
         if not isinstance(name, str) or len(name) == 0 :
             raise ValueError('"name" must be a not empty string.')
         return self._headers.get(name.lower(), '')
 
-    # ------------------------------------------------------------------------
 
     def CheckBasicAuth(self, username, password) :
         if not isinstance(username, str) :
@@ -230,7 +217,6 @@ class HttpRequest :
                 pass
         return False
 
-    # ------------------------------------------------------------------------
 
     def CheckBearerAuth(self, token) :
         if not isinstance(token, str) :
@@ -246,55 +232,46 @@ class HttpRequest :
                 pass
         return False
 
-    # ------------------------------------------------------------------------
 
     @property
     def UserAddress(self) :
         return self._xasCli.CliAddr
 
-    # ------------------------------------------------------------------------
 
     @property
     def IsSSL(self) :
         return self._xasCli.IsSSL
 
-    # ------------------------------------------------------------------------
 
     @property
     def HttpVer(self) :
         return self._httpVer
 
-    # ------------------------------------------------------------------------
 
     @property
     def Method(self) :
         return self._method
 
-    # ------------------------------------------------------------------------
 
     @property
     def Path(self) :
         return self._path
 
-    # ------------------------------------------------------------------------
 
     @property
     def QueryString(self) :
         return self._queryString
 
-    # ------------------------------------------------------------------------
 
     @property
     def QueryParams(self) :
         return self._queryParams
 
-    # ------------------------------------------------------------------------
 
     @property
     def Host(self) :
         return self._headers.get('host', '')
 
-    # ------------------------------------------------------------------------
 
     @property
     def Accept(self) :
@@ -303,7 +280,6 @@ class HttpRequest :
             return [x.strip() for x in s.split(',')]
         return [ ]
 
-    # ------------------------------------------------------------------------
 
     @property
     def AcceptEncodings(self) :
@@ -312,7 +288,6 @@ class HttpRequest :
             return [x.strip() for x in s.split(',')]
         return [ ]
 
-    # ------------------------------------------------------------------------
 
     @property
     def AcceptLanguages(self) :
@@ -321,7 +296,6 @@ class HttpRequest :
             return [x.strip() for x in s.split(',')]
         return [ ]
 
-    # ------------------------------------------------------------------------
 
     @property
     def Cookies(self) :
@@ -330,25 +304,21 @@ class HttpRequest :
             return [x.strip() for x in s.split(';')]
         return [ ]
 
-    # ------------------------------------------------------------------------
 
     @property
     def CacheControl(self) :
         return self._headers.get('cache-control', '')
 
-    # ------------------------------------------------------------------------
 
     @property
     def Referer(self) :
         return self._headers.get('referer', '')
 
-    # ------------------------------------------------------------------------
 
     @property
     def ContentType(self) :
         return self._headers.get('content-type', '').split(';', 1)[0].strip()
 
-    # ------------------------------------------------------------------------
 
     @property
     def ContentLength(self) :
@@ -357,60 +327,47 @@ class HttpRequest :
         except :
             return 0
 
-    # ------------------------------------------------------------------------
 
     @property
     def UserAgent(self) :
         return self._headers.get('user-agent', '')
 
-    # ------------------------------------------------------------------------
 
     @property
     def Authorization(self) :
         return self._headers.get('authorization', '')
 
-    # ------------------------------------------------------------------------
 
     @property
     def Origin(self) :
         return self._headers.get('origin', '')
 
-    # ------------------------------------------------------------------------
 
     @property
     def IsKeepAlive(self) :
         return ('keep-alive' in self._headers.get('connection', '').lower())
 
-    # ------------------------------------------------------------------------
 
     @property
     def IsUpgrade(self) :
         return ('upgrade' in self._headers.get('connection', '').lower())
 
-    # ------------------------------------------------------------------------
 
     @property
     def Upgrade(self) :
         return self._headers.get('upgrade', '')
 
-    # ------------------------------------------------------------------------
 
     @property
     def Content(self) :
         return self._content
 
-    # ------------------------------------------------------------------------
 
     @property
     def Response(self) :
         return self._response
 
-    # ------------------------------------------------------------------------
 
     @property
     def XAsyncTCPClient(self) :
         return self._xasCli
-
-# ============================================================================
-# ============================================================================
-# ============================================================================

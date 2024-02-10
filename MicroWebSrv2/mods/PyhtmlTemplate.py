@@ -6,10 +6,8 @@ Copyright © 2019 Jean-Christophe Bos & HC² (www.hc2.fr)
 
 from   os   import stat
 import re
+from   _thread  import start_new_thread
 
-# ============================================================================
-# ===( MicroWebSrv2 : PyhtmlTemplate Module )=================================
-# ============================================================================
 
 class PyhtmlTemplate :
 
@@ -31,13 +29,11 @@ class PyhtmlTemplate :
     </html>
     """
 
-    # ------------------------------------------------------------------------
 
     def __init__(self) :
         self._showDebug    = False
         self._pyGlobalVars = { }
 
-    # ------------------------------------------------------------------------
 
     def OnRequest(self, microWebSrv2, request) :
         if (request.Method == 'GET' or request.Method == 'HEAD') and \
@@ -45,7 +41,6 @@ class PyhtmlTemplate :
             filepath = microWebSrv2.ResolvePhysicalPath(request.Path)
             self.ReturnTemplate(microWebSrv2, request, filepath)
 
-    # ------------------------------------------------------------------------
 
     def ReturnTemplate(self, microWebSrv2, request, filepath):
         if not filepath:
@@ -64,6 +59,7 @@ class PyhtmlTemplate :
             codeTemplate = CodeTemplate(code, microWebSrv2.HTMLEscape)
             content      = codeTemplate.Execute(self._pyGlobalVars, None)
             request.Response.ReturnOk(content)
+            codeTemplate._handleEndPyCode()
 
         except Exception as ex :
             microWebSrv2.Log( 'Exception raised from pyhtml template file "%s": %s' % (filepath, ex),
@@ -76,14 +72,12 @@ class PyhtmlTemplate :
             else :
                 request.Response.ReturnInternalServerError()
 
-    # ------------------------------------------------------------------------
 
     def SetGlobalVar(self, globalVarName, globalVar) :
         if not isinstance(globalVarName, str) or len(globalVarName) == 0 :
             raise ValueError('"globalVarName" must be a not empty string.')
         self._pyGlobalVars[globalVarName] = globalVar
 
-    # ------------------------------------------------------------------------
 
     def GetGlobalVar(self, globalVarName) :
         if not isinstance(globalVarName, str) or len(globalVarName) == 0 :
@@ -93,7 +87,6 @@ class PyhtmlTemplate :
         except :
             return None
 
-    # ------------------------------------------------------------------------
 
     @property
     def ShowDebug(self) :
@@ -105,16 +98,15 @@ class PyhtmlTemplate :
             raise ValueError('"ShowDebug" must be a boolean.')
         self._showDebug = value
 
-# ============================================================================
-# ===( CodeTemplate )=========================================================
-# ============================================================================
+
+
+
 
 class CodeTemplateException(Exception) :
     pass
 
 class CodeTemplate :
 
-    # ------------------------------------------------------------------------
 
     TOKEN_OPEN              = '{{'
     TOKEN_CLOSE             = '}}'
@@ -122,6 +114,7 @@ class CodeTemplate :
     TOKEN_CLOSE_LEN         = len(TOKEN_CLOSE)
 
     INSTRUCTION_PYTHON      = 'py'
+    INSTRUCTION_PYTHON_END  = 'pyend'
     INSTRUCTION_IF          = 'if'
     INSTRUCTION_ELIF        = 'elif'
     INSTRUCTION_ELSE        = 'else'
@@ -130,7 +123,6 @@ class CodeTemplate :
 
     RE_IDENTIFIER           = re.compile(r'[a-zA-Z_][a-zA-Z0-9_]*$')
 
-    # ------------------------------------------------------------------------
 
     def __init__(self, code, escapeStrFunc=None) :
         self._code          = code
@@ -141,8 +133,10 @@ class CodeTemplate :
         self._pyGlobalVars  = { }
         self._pyLocalVars   = { }
         self._rendered      = ''
+        self._endPyCode     = None
         self._instructions  = {
             CodeTemplate.INSTRUCTION_PYTHON : self._processInstructionPYTHON,
+            CodeTemplate.INSTRUCTION_PYTHON_END : self._processInstructionPYTHONEND,
             CodeTemplate.INSTRUCTION_IF     : self._processInstructionIF,
             CodeTemplate.INSTRUCTION_ELIF   : self._processInstructionELIF,
             CodeTemplate.INSTRUCTION_ELSE   : self._processInstructionELSE,
@@ -150,7 +144,6 @@ class CodeTemplate :
             CodeTemplate.INSTRUCTION_END    : self._processInstructionEND
         }
 
-    # ------------------------------------------------------------------------
 
     def Validate(self, pyGlobalVars=None, pyLocalVars=None) :
         try :
@@ -159,7 +152,6 @@ class CodeTemplate :
         except Exception as ex :
             return str(ex)
 
-    # ----------------------------------------------------------------------------
 
     def Execute(self, pyGlobalVars=None, pyLocalVars=None) :
         try :
@@ -168,7 +160,6 @@ class CodeTemplate :
         except Exception as ex :
             raise CodeTemplateException(str(ex))
 
-    # ------------------------------------------------------------------------
 
     def _parseCode(self, pyGlobalVars, pyLocalVars, execute) :
         self._pos          = 0
@@ -182,7 +173,6 @@ class CodeTemplate :
             raise CodeTemplateException( '"%s" instruction is not valid here (line %s)'
                                          % (newTokenToProcess, self._line) )
 
-    # ------------------------------------------------------------------------
 
     def _parseBloc(self, execute) :
         while True :
@@ -208,12 +198,10 @@ class CodeTemplate :
             if newTokenToProcess is not None :
                 return newTokenToProcess
 
-    # ------------------------------------------------------------------------
 
     def _renderingPrint(self, s) :
         self._rendered += str(s)
 
-    # ------------------------------------------------------------------------
 
     def _processToken(self, tokenContent, execute) :
         parts        = tokenContent.split(' ', 1)
@@ -239,7 +227,6 @@ class CodeTemplate :
                 raise CodeTemplateException('%s (line %s)' % (ex, self._line))
         return newTokenToProcess
 
-    # ------------------------------------------------------------------------
 
     def _processInstructionPYTHON(self, instructionBody, execute) :
         if instructionBody is not None :
@@ -262,29 +249,35 @@ class CodeTemplate :
                                          % (tokenContent, self._line) )
         if execute :
             lines  = pyCode.split('\n')
-            indent = '' 
-            for line in lines :
-                if len(line.strip()) > 0 :
-                    for c in line :
-                        if c == ' ' or c == '\t' :
-                            indent += c
-                        else :
-                            break
-                    break
-            indentLen = len(indent)
-            for i in range(len(lines)) :
-                if lines[i].startswith(indent) :
-                    lines[i] = lines[i][indentLen:] + '\n'
-                else :
-                    lines[i] += '\n'
-            pyCode = ''.join(lines)
-            try :
-                exec(pyCode, self._pyGlobalVars, self._pyLocalVars)
-            except Exception as ex :
-                raise CodeTemplateException('%s (line %s)' % (ex, self._line))
+            self._executePyCode(lines)
         return None
 
-    # ------------------------------------------------------------------------
+
+    def _processInstructionPYTHONEND(self, instructionBody, execute) :
+        if instructionBody is not None :
+            raise CodeTemplateException( 'Instruction "%s" is invalid (line %s)'
+                                         % (CodeTemplate.INSTRUCTION_PYTHON, self._line) )
+        idx = self._code.find(CodeTemplate.TOKEN_OPEN, self._pos)
+        if idx < 0 :
+            raise CodeTemplateException('"%s" is required but the end of code has been found' % CodeTemplate.TOKEN_OPEN)
+        pyCode      = self._code[self._pos:idx]
+        self._line += pyCode.count('\n')
+        self._pos   = idx + CodeTemplate.TOKEN_OPEN_LEN
+        idx         = self._code.find(CodeTemplate.TOKEN_CLOSE, self._pos)
+        if idx < 0 :
+            raise CodeTemplateException('"%s" is required but the end of code has been found' % CodeTemplate.TOKEN_CLOSE)
+        tokenContent  = self._code[self._pos:idx].strip()
+        self._line   += tokenContent.count('\n')
+        self._pos     = idx + CodeTemplate.TOKEN_CLOSE_LEN
+        if tokenContent != CodeTemplate.INSTRUCTION_END :
+            raise CodeTemplateException( '"%s" is a bad instruction in a python bloc (line %s)'
+                                         % (tokenContent, self._line) )
+        if execute :
+            self._endPyCode = pyCode.split('\n')
+        else:
+            self._endPyCode = None
+        return None
+
 
     def _processInstructionIF(self, instructionBody, execute) :
         if instructionBody is not None :
@@ -326,7 +319,6 @@ class CodeTemplate :
         raise CodeTemplateException( '"%s" alone is an incomplete syntax (line %s)'
                                      % (CodeTemplate.INSTRUCTION_IF, self._line) )
 
-    # ------------------------------------------------------------------------
 
     def _processInstructionELIF(self, instructionBody, execute) :
         if instructionBody is None :
@@ -335,7 +327,6 @@ class CodeTemplate :
         self._elifInstructionBody = instructionBody
         return CodeTemplate.INSTRUCTION_ELIF
 
-    # ------------------------------------------------------------------------
 
     def _processInstructionELSE(self, instructionBody, execute) :
         if instructionBody is not None :
@@ -343,7 +334,6 @@ class CodeTemplate :
                                          % (CodeTemplate.INSTRUCTION_ELSE, self._line) )
         return CodeTemplate.INSTRUCTION_ELSE
 
-    # ------------------------------------------------------------------------
 
     def _processInstructionFOR(self, instructionBody, execute) :
         if instructionBody is not None :
@@ -381,7 +371,6 @@ class CodeTemplate :
         raise CodeTemplateException( '"%s" alone is an incomplete syntax (line %s)'
                                      % (CodeTemplate.INSTRUCTION_FOR, self._line) )
 
-    # ------------------------------------------------------------------------
 
     def _processInstructionEND(self, instructionBody, execute) :
         if instructionBody is not None :
@@ -389,6 +378,32 @@ class CodeTemplate :
                                          % (CodeTemplate.INSTRUCTION_END, self._line) )
         return CodeTemplate.INSTRUCTION_END
 
-# ============================================================================
-# ============================================================================
-# ============================================================================
+
+    def _handleEndPyCode(self) :
+        if self._endPyCode is None:
+            return
+
+        start_new_thread(self._executePyCode, (self._endPyCode,))
+
+
+    def _executePyCode(self, lines):
+        indent = ''
+        for line in lines :
+            if len(line.strip()) > 0 :
+                for c in line :
+                    if c == ' ' or c == '\t' :
+                        indent += c
+                    else :
+                        break
+                break
+        indentLen = len(indent)
+        for i in range(len(lines)) :
+            if lines[i].startswith(indent) :
+                lines[i] = lines[i][indentLen:] + '\n'
+            else :
+                lines[i] += '\n'
+        pyCode = ''.join(lines)
+        try :
+            exec(pyCode, self._pyGlobalVars, self._pyLocalVars)
+        except Exception as ex :
+            raise CodeTemplateException('%s (line %s)' % (ex, self._line))
