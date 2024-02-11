@@ -107,28 +107,31 @@ class XAsyncSocketsPool :
                                          XAsyncSocketsPool._CHECK_SEC_INTERVAL )
                 except KeyboardInterrupt as ex :
                     raise ex
-                except :
+                except Exception as ex :
                     continue
                 if not self._processing :
                     break
                 for socketsList in ex, wr, rd :
-                    for socket in socketsList :
+                    for sock in socketsList :
                         with self._opLock :
-                            asyncSocket = self._asyncSockets.get(socket.fileno(), None)
+                            asyncSocket = self._asyncSockets.get(sock.fileno(), None)
                         if asyncSocket :
-                            if self._socketListAdd(socket, self._handlingList) :
+                            if self._socketListAdd(sock, self._handlingList) :
                                 if socketsList is ex :
                                     asyncSocket.OnExceptionalCondition()
+                                    self._socketListRemove(sock, self._readList)
+                                    self._socketListRemove(sock, self._writeList)
+                                    sock.shutdown(socket.SHUT_RDWR)
                                 elif socketsList is wr :
-                                    self._socketListRemove(socket, self._writeList)
+                                    self._socketListRemove(sock, self._writeList)
                                     asyncSocket.OnReadyForWriting()
                                 else :
                                     asyncSocket.OnReadyForReading()
-                                self._socketListRemove(socket, self._handlingList)
+                                self._socketListRemove(sock, self._handlingList)
                         else :
-                            self._socketListRemove(socket, self._readList)
-                            self._socketListRemove(socket, self._writeList)
-                            socket.close()
+                            self._socketListRemove(sock, self._readList)
+                            self._socketListRemove(sock, self._writeList)
+                            sock.shutdown(socket.SHUT_RDWR)
                 sec = perf_counter()
                 if sec > timeSec + XAsyncSocketsPool._CHECK_SEC_INTERVAL :
                     timeSec = sec
@@ -138,6 +141,8 @@ class XAsyncSocketsPool :
                             asyncSocket._close(XClosedReason.Timeout)
             except KeyboardInterrupt :
                 self._processing = False
+            except :
+                pass
         self._decThreadsCount()
 
     # ------------------------------------------------------------------------
