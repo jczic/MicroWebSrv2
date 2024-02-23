@@ -64,11 +64,11 @@ class XAsyncSocketsPool :
             with self._opLock :
                 if socketno in self._asyncSockets :
                     del self._asyncSockets[socketno]
-                    if socket in self._readList :
-                        self._readList.remove(socket)
-                    if socket in self._writeList :
-                        self._writeList.remove(socket)
-                    return True
+                if socket in self._readList :
+                    self._readList.remove(socket)
+                if socket in self._writeList :
+                    self._writeList.remove(socket)
+                return True
         return False
 
     # ------------------------------------------------------------------------
@@ -98,18 +98,17 @@ class XAsyncSocketsPool :
 
     def _processWaitEvents(self) :
 
-        def jobExceptionalCondition(asyncSocket) :
-            asyncSocket.OnExceptionalCondition()
-            self._socketListRemove(asyncSocket.GetSocketObj(), self._handlingList)
+        def jobExceptionalCondition(args) :
+            args[0].OnExceptionalCondition()
+            self._socketListRemove(args[1], self._handlingList)
 
-        def jobReadyForWriting(asyncSocket) :
-            asyncSocket.OnReadyForWriting()
-            self._socketListRemove(asyncSocket.GetSocketObj(), self._handlingList)
+        def jobReadyForWriting(args) :
+            args[0].OnReadyForWriting()
+            self._socketListRemove(args[1], self._handlingList)
 
-        def jobReadyForReading(asyncSocket) :
-            s = asyncSocket.GetSocketObj()
-            asyncSocket.OnReadyForReading()
-            self._socketListRemove(asyncSocket.GetSocketObj(), self._handlingList)
+        def jobReadyForReading(args) :
+            args[0].OnReadyForReading()
+            self._socketListRemove(args[1], self._handlingList)
 
         self._processing = True
         
@@ -141,23 +140,23 @@ class XAsyncSocketsPool :
                                 if self._socketListAdd(sock, self._handlingList) :
                                     if socketsList is rd :
                                         if self._microWorkers :
-                                            self._microWorkers.AddJob(jobReadyForReading, asyncSocket)
+                                            self._microWorkers.AddJob(jobReadyForReading, (asyncSocket, sock))
                                         else :
                                             jobReadyForReading(asyncSocket)
                                     elif socketsList is wr :
                                         self._socketListRemove(sock, self._writeList)
                                         if self._microWorkers :
-                                            self._microWorkers.AddJob(jobReadyForWriting, asyncSocket)
+                                            self._microWorkers.AddJob(jobReadyForWriting, (asyncSocket, sock))
                                         else :
                                             jobReadyForWriting(asyncSocket)
                                     else :
+                                        self._removeSocket(sock)
                                         if self._microWorkers :
-                                            self._microWorkers.AddJob(jobExceptionalCondition, asyncSocket)
+                                            self._microWorkers.AddJob(jobExceptionalCondition, (asyncSocket, sock))
                                         else :
                                             jobExceptionalCondition(asyncSocket)
                             else :
-                                self._socketListRemove(sock, self._readList)
-                                self._socketListRemove(sock, self._writeList)
+                                self._removeSocket(sock)
                                 sock.close()
                 sec = perf_counter()
                 if sec > timeSec + XAsyncSocketsPool._CHECK_SEC_INTERVAL :
@@ -166,6 +165,7 @@ class XAsyncSocketsPool :
                         if asyncSocket.ExpireTimeSec and \
                            timeSec > asyncSocket.ExpireTimeSec :
                             asyncSocket._close(XClosedReason.Timeout)
+                            self._removeSocket(asyncSocket.GetSocketObj())
             except :
                 pass
 
@@ -1194,7 +1194,10 @@ class MicroWorkers :
                     jobFunc, jobArg = self._jobs.pop(0)
                 except :
                     self._workersLock.acquire()
-            self._workersLock.release()
+            try :
+                self._workersLock.release()
+            except :
+                pass
             if jobFunc :
                 with self._criticalLock :
                     self._jobsPrcCount += 1
