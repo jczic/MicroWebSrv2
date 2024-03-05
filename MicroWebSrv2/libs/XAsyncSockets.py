@@ -136,7 +136,7 @@ class XAsyncSocketsPool :
                             self._udpSockEvt.recv_into(udpSockEvtBuf)
                         else :
                             asyncSocket = self._asyncSockets.get(sock.fileno())
-                            if asyncSocket :
+                            if asyncSocket and asyncSocket.GetSocketObj() == sock :
                                 if self._socketListAdd(sock, self._handlingList) :
                                     if socketsList is rd :
                                         if self._microWorkers :
@@ -691,6 +691,7 @@ class XAsyncTCPClient(XAsyncSocket) :
                     if not self.IsSSL or self._socket.pending() == 0 :
                         return
             else :
+                self._asyncSocketsPool.NotifyNextReadyForReading(self, False)
                 return
 
     # ------------------------------------------------------------------------
@@ -825,6 +826,8 @@ class XAsyncTCPClient(XAsyncSocket) :
                     raise XAsyncTCPClientException('SSL : Bad handshake : %s' % sslErr)
             except Exception as ex :
                 raise XAsyncTCPClientException('SSL : Handshake error : %s' % ex)
+        else :
+            raise XAsyncTCPClientException('SSL : Handshake error')
 
     # ------------------------------------------------------------------------
 
