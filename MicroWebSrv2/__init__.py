@@ -1,14 +1,14 @@
 
 """
 The MIT License (MIT)
-Copyright © 2019 Jean-Christophe Bos & HC² (www.hc2.fr)
+Copyright © 2024 Jean-Christophe Bos (jczic.bos@gmail.com)
 """
 
 print()
 print('       ---------------------------')
 print('       - Python pkg MicroWebSrv2 -')
-print('       -      version 2.0.6      -')
-print('       -     by JC`zic & HC2     -')
+print('       -      version 2.1.0      -')
+print('       -        by JC`zic        -')
 print('       ---------------------------')
 print()
 
