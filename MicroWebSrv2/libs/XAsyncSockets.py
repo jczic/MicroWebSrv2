@@ -48,11 +48,10 @@ class XAsyncSocketsPool :
     # ------------------------------------------------------------------------
 
     def _addSocket(self, socket, asyncSocket) :
-        if socket :
-            socketno = socket.fileno()
+        if socket and asyncSocket :
             with self._opLock :
-                if socketno not in self._asyncSockets :
-                    self._asyncSockets[socketno] = asyncSocket
+                if socket not in self._asyncSockets :
+                    self._asyncSockets[socket] = asyncSocket
                     return True
         return False
 
@@ -60,10 +59,9 @@ class XAsyncSocketsPool :
 
     def _removeSocket(self, socket) :
         if socket :
-            socketno = socket.fileno()
             with self._opLock :
-                if socketno in self._asyncSockets :
-                    del self._asyncSockets[socketno]
+                if socket in self._asyncSockets :
+                    del self._asyncSockets[socket]
                 if socket in self._readList :
                     self._readList.remove(socket)
                 if socket in self._writeList :
@@ -135,26 +133,26 @@ class XAsyncSocketsPool :
                         if sock == self._udpSockEvt :
                             self._udpSockEvt.recv_into(udpSockEvtBuf)
                         else :
-                            asyncSocket = self._asyncSockets.get(sock.fileno())
+                            asyncSocket = self._asyncSockets.get(sock)
                             if asyncSocket and asyncSocket.GetSocketObj() == sock :
                                 if self._socketListAdd(sock, self._handlingList) :
                                     if socketsList is rd :
                                         if self._microWorkers :
                                             self._microWorkers.AddJob(jobReadyForReading, (asyncSocket, sock))
                                         else :
-                                            jobReadyForReading(asyncSocket)
+                                            jobReadyForReading((asyncSocket, sock))
                                     elif socketsList is wr :
                                         self._socketListRemove(sock, self._writeList)
                                         if self._microWorkers :
                                             self._microWorkers.AddJob(jobReadyForWriting, (asyncSocket, sock))
                                         else :
-                                            jobReadyForWriting(asyncSocket)
+                                            jobReadyForWriting((asyncSocket, sock))
                                     else :
                                         self._removeSocket(sock)
                                         if self._microWorkers :
                                             self._microWorkers.AddJob(jobExceptionalCondition, (asyncSocket, sock))
                                         else :
-                                            jobExceptionalCondition(asyncSocket)
+                                            jobExceptionalCondition((asyncSocket, sock))
                             else :
                                 self._removeSocket(sock)
                                 sock.close()
@@ -337,7 +335,6 @@ class XAsyncSocket :
                 self._socket.close()
             except :
                 pass
-            self._socket = None
             if self._recvBufSlot is not None :
                 self._recvBufSlot.Available = True
                 self._recvBufSlot = None
@@ -691,7 +688,7 @@ class XAsyncTCPClient(XAsyncSocket) :
                     if not self.IsSSL or self._socket.pending() == 0 :
                         return
             else :
-                self._asyncSocketsPool.NotifyNextReadyForReading(self, False)
+                self._close(XClosedReason.ClosedByHost)
                 return
 
     # ------------------------------------------------------------------------
@@ -844,6 +841,7 @@ class XAsyncTCPClient(XAsyncSocket) :
         try :
             self._asyncSocketsPool.NotifyNextReadyForWriting(self, False)
             self._asyncSocketsPool.NotifyNextReadyForReading(self, False)
+            self._asyncSocketsPool.RemoveAsyncSocket(self)
             self._socket = ssl.wrap_socket( self._socket,
                                             keyfile     = keyfile,
                                             certfile    = certfile,
@@ -851,6 +849,7 @@ class XAsyncTCPClient(XAsyncSocket) :
                                             cert_reqs   = cert_reqs,
                                             ca_certs    = ca_certs,
                                             do_handshake_on_connect = False )
+            self._asyncSocketsPool.AddAsyncSocket(self)
         except Exception as ex :
             raise XAsyncTCPClientException('StartSSL : %s' % ex)
         self._doSSLHandshake()
@@ -867,9 +866,11 @@ class XAsyncTCPClient(XAsyncSocket) :
         try :
             self._asyncSocketsPool.NotifyNextReadyForWriting(self, False)
             self._asyncSocketsPool.NotifyNextReadyForReading(self, False)
+            self._asyncSocketsPool.RemoveAsyncSocket(self)
             self._socket = sslContext.wrap_socket( self._socket,
                                                    server_side             = serverSide,
                                                    do_handshake_on_connect = False )
+            self._asyncSocketsPool.AddAsyncSocket(self)
         except Exception as ex :
             raise XAsyncTCPClientException('StartSSLContext : %s' % ex)
         self._doSSLHandshake()
