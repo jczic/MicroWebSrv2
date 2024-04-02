@@ -97,15 +97,18 @@ class XAsyncSocketsPool :
     def _processWaitEvents(self) :
 
         def jobExceptionalCondition(args) :
-            args[0].OnExceptionalCondition()
+            if args[0].OnExceptionalCondition() :
+                self._removeSocket(args[1])
             self._socketListRemove(args[1], self._handlingList)
 
         def jobReadyForWriting(args) :
-            args[0].OnReadyForWriting()
+            if args[0].OnReadyForWriting() :
+                self._removeSocket(args[1])
             self._socketListRemove(args[1], self._handlingList)
 
         def jobReadyForReading(args) :
-            args[0].OnReadyForReading()
+            if args[0].OnReadyForReading() :
+                self._removeSocket(args[1])
             self._socketListRemove(args[1], self._handlingList)
 
         self._processing = True
@@ -125,6 +128,7 @@ class XAsyncSocketsPool :
                 except KeyboardInterrupt :
                     break
                 except :
+                    sleep(XAsyncSocketsPool._CHECK_SEC_INTERVAL)
                     continue
                 if not self._processing :
                     break
@@ -134,7 +138,7 @@ class XAsyncSocketsPool :
                             self._udpSockEvt.recv_into(udpSockEvtBuf)
                         else :
                             asyncSocket = self._asyncSockets.get(sock)
-                            if asyncSocket and asyncSocket.GetSocketObj() == sock :
+                            if asyncSocket and asyncSocket.GetSocketObj() == sock and sock.fileno() != -1 :
                                 if self._socketListAdd(sock, self._handlingList) :
                                     if socketsList is rd :
                                         if self._microWorkers :
@@ -163,7 +167,6 @@ class XAsyncSocketsPool :
                         if asyncSocket.ExpireTimeSec and \
                            timeSec > asyncSocket.ExpireTimeSec :
                             asyncSocket._close(XClosedReason.Timeout)
-                            self._removeSocket(asyncSocket.GetSocketObj())
             except :
                 pass
 
@@ -367,17 +370,18 @@ class XAsyncSocket :
     # ------------------------------------------------------------------------
 
     def OnReadyForReading(self) :
-        pass
+        return True
 
     # ------------------------------------------------------------------------
 
     def OnReadyForWriting(self) :
-        pass
+        return True
 
     # ------------------------------------------------------------------------
 
     def OnExceptionalCondition(self) :
         self._close()
+        return True
 
     # ------------------------------------------------------------------------
 
@@ -689,7 +693,7 @@ class XAsyncTCPClient(XAsyncSocket) :
                         return
             else :
                 self._close(XClosedReason.ClosedByHost)
-                return
+                return True
 
     # ------------------------------------------------------------------------
 
@@ -712,15 +716,17 @@ class XAsyncTCPClient(XAsyncSocket) :
                     self._onConnected(self)
                 except Exception as ex :
                     raise XAsyncTCPClientException('Error when handling the "OnConnected" event : %s' % ex)
+            return
         if self._wrBufView :
             try :
                 n = self._socket.send(self._wrBufView)
             except Exception as ex :
                 if hasattr(ssl, 'SSLEOFError') and isinstance(ex, ssl.SSLEOFError) :
                     self._close()
+                    return True
                 else :
                     self._asyncSocketsPool.NotifyNextReadyForWriting(self, True)
-                return
+                    return
             self._wrBufView = self._wrBufView[n:]
             if self._wrBufView :
                 self._asyncSocketsPool.NotifyNextReadyForWriting(self, True)
@@ -969,7 +975,7 @@ class XAsyncUDPDatagram(XAsyncSocket) :
                 buf, remoteAddr = self._socket.recvfrom(self._recvBufSlot.Size)
                 datagram        = memoryview(buf)
             except :
-                return
+                return True
         if self._onDataRecv :
             try :
                 self._onDataRecv(self, remoteAddr, datagram)
