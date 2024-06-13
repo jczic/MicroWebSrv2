@@ -1,4 +1,3 @@
-
 """
 The MIT License (MIT)
 Copyright © 2019 Jean-Christophe Bos & HC² (www.hc2.fr)
@@ -178,7 +177,7 @@ class HttpRequest :
 
     # ------------------------------------------------------------------------
 
-    def GetPostedURLEncodedForm(self) :
+    def GetPostedForm(self) :
         res = { }
         if self.ContentType.lower() == 'application/x-www-form-urlencoded' :
             try :
@@ -190,6 +189,26 @@ class HttpRequest :
                         res[UrlUtils.UnquotePlus(p[0])] = v
             except :
                 pass
+        elif self.ContentType.lower() == 'multipart/form-data':
+            if "boundary=" in self.ContentSubtype.lower():
+                msg = "Received multipart form -- processing...."
+                self._mws2.Log(msg, self._mws2.DEBUG)
+                bound = self.ContentSubtype.split("boundary=")[1].strip()
+
+                msg = "boundary for multipart parts: {}".format(bound)
+                self._mws2.Log(msg, self._mws2.DEBUG)
+
+                form_parts = self.__split_parts_at(bound)
+                if form_parts:
+                    for part in form_parts:
+                        res.update(self.__parse_multi_part(part))
+                else:
+                    self._mws2.Log('Could not split at boundaries', self._mws2.ERROR)
+            else:
+                self._mws2.Log('Could not find content boundary string', self._mws2.ERROR)
+        else:
+            self._mws2.Log('GetPostedForm does not support %s' % self.ContentType,
+                           self._mws2.ERROR)
         return res
 
     # ------------------------------------------------------------------------
@@ -245,6 +264,166 @@ class HttpRequest :
             except :
                 pass
         return False
+
+
+    # ------------------------------------------------------------------------
+
+    def __split_parts_at(self, boundary):
+        """ Split multipart/form-data into list with data b/w boundaries. """
+        content_bytes = bytes(self._content)
+        form_parts = []
+
+        bound_length = len(boundary)
+        content_end = len(self._content)
+        ind_start = 2
+        ind_stop = bound_length + 2
+
+        while ind_stop < content_end:
+            # Should always be starting w/ boundary string
+            content_chunk = content_bytes[ind_start:ind_stop]
+            try:
+                content_str = content_chunk.decode('utf-8')
+                if content_str != boundary:
+                    print("boundary: >>{}<<\ntest_str: >>{}<<".format(
+                        boundary, content_str))
+                    self._mws2.Log('Ill-formed part of multipart data',
+                                   self._mws2.ERROR)
+            except Exception as ex:
+                self._mws2.Log('Ill-formed part of multipart data: %s' % ex,
+                               self._mws2.ERROR)
+
+            # Strip initial \r\n from multipart part
+            ind_start = ind_stop + 2
+
+            if ind_start + 2 == content_end:
+                # Double-check last four bytes are '--\r\n'
+                last_four = content_bytes[ind_start-2:ind_start+2]
+                try:
+                    end_str = last_four.decode('utf-8')
+                except:
+                    pass
+                if end_str != "--\r\n":
+                    self._mws2.Log(
+                        'Ill-formed end of multipart msg: %s' % end_str,
+                        self._mws2.ERROR)
+                break
+
+            # Should have 'Content-Disposition: form-data; name=' next
+            ind_stop = ind_start + 38
+            test_bytes = content_bytes[ind_stop:ind_stop + bound_length]
+            test_str = ""
+            is_str = False
+            try:
+                test_str = test_bytes.decode('utf-8')
+                is_str = True
+            except:
+                pass
+            while test_str != boundary:
+                ind_stop = ind_stop + 1
+                if ind_stop + bound_length > content_end:
+                    self._mws2.Log('Cannot find next boundary', self._mws2.ERROR)
+                    break
+                test_bytes = content_bytes[ind_stop:ind_stop + bound_length]
+                try:
+                    test_str = test_bytes.decode('utf-8')
+                    is_str = True
+                except:
+                    is_str = False
+                    pass
+            stop = ind_stop - 4
+            form_parts.insert(len(form_parts), content_bytes[ind_start:stop])
+            ind_start = ind_stop
+            ind_stop = ind_stop + bound_length
+        return form_parts
+
+    # ------------------------------------------------------------------------
+
+    def __parse_multi_part(self, form_data):
+        """
+        Extract content from multipart/form-data.
+        Argument form_data is content between boundaries (i.e. an item from
+        list returned by __extract_form_parts() above).
+        """
+        all_text = False
+        try:
+            form_str = form_data.decode('utf-8')
+            all_text = True
+        except:
+            pass
+        if all_text:
+            return self.__parse_multi_text(form_str)
+
+        ret_dict = {}
+
+        # Separate header text from binary file data.
+        disp_str = "Content-Disposition: form-data; "
+        str_start = 0
+        str_end = len(disp_str)
+        header_str = form_data[str_start:str_end].decode('utf-8')
+        while not header_str.endswith("\r\n\r\n"):
+            str_end = str_end + 1
+            header_str = form_data[str_start:str_end].decode('utf-8')
+        header_str = header_str[len(disp_str):].strip()
+        tmp_dict = self.__parse_upload_header(header_str)
+
+        # Save to drive.
+        # TODO: Should sanitize the filename in case of malicious user.
+        if "name" in tmp_dict and "filename" in tmp_dict:
+            ret_dict[tmp_dict["name"]] = tmp_dict["filename"]
+            upload_dir = self._mws2._uploadPath
+            ret_dict["saved_as"] = "{}/{}".format(upload_dir, tmp_dict["filename"])
+            with open(ret_dict["saved_as"], "wb") as bin_fh:
+                bin_fh.write(form_data[str_end:])
+            self._mws2.Log('ret_dict: %s' % ret_dict, self._mws2.DEBUG)
+        else:
+            self._mws2.Log('Cannot parse: %s' % header_str, self._mws2.ERROR)
+
+        return ret_dict
+
+    # ------------------------------------------------------------------------
+
+    def __parse_multi_text(self, form_str):
+        """
+        Extract content from multipart/form-data.
+        Argument form_str is decoded (utf-8) content between boundaries.
+        """
+        # First line should at least have content-disposition and name.
+        ret_dict = {}
+        header_content = form_str.split("\r\n\r\n")
+        disp_str = "Content-Disposition: form-data; "
+        header = header_content[0].split(disp_str)[1]
+
+        if "filename" in header:
+            tmp_dict = self.__parse_upload_header(header)
+            if "name" in tmp_dict and "filename" in tmp_dict:
+                ret_dict[tmp_dict["name"]] = tmp_dict["filename"]
+                ret_dict[tmp_dict["filename"]] = header_content[1]
+            else:
+                self._mws2.Log('Cannot parse: %s' % header,
+                            self._mws2.ERROR)
+        else:
+            header_parts = header.split("=")
+            if len(header_parts) > 2:
+                self._mws2.Log('Ill-formed multipart part header: %s' % header,
+                            self._mws2.ERROR)
+            else:
+                dict_key = header_parts[1].replace('"', '')
+                ret_dict[dict_key] = header_content[1]
+
+        return ret_dict
+
+    # ------------------------------------------------------------------------
+
+    def __parse_upload_header(self, header):
+        """ Parse header from multipart/form-data into dictionary. """
+        header_lines = header.split("\r\n")
+        header_parts = header_lines[0].split("; ")
+        tmp_dict = {}
+        for part in header_parts:
+            print("\t{}".format(part))
+            part_items = part.split("=")
+            tmp_dict[part_items[0]] = part_items[1].replace('"', '')
+        return tmp_dict
 
     # ------------------------------------------------------------------------
 
@@ -347,6 +526,11 @@ class HttpRequest :
     @property
     def ContentType(self) :
         return self._headers.get('content-type', '').split(';', 1)[0].strip()
+    # ------------------------------------------------------------------------
+
+    @property
+    def ContentSubtype(self):
+        return self._headers.get('content-type', '').split(';', 1)[1].strip()
 
     # ------------------------------------------------------------------------
 
