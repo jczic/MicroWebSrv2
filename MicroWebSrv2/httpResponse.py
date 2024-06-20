@@ -353,10 +353,15 @@ class HttpResponse :
         if attachmentName is not None and not isinstance(attachmentName, str) :
             raise ValueError('"attachmentName" must be a string or None.')
         try :
-            size = stat(filename)[6]
+            size = stat(filename+".gz")[6]
+            filename += ".gz"
+            self.SetHeader('Content-Encoding', 'gzip')
         except :
-            self.ReturnNotFound()
-            return
+            try :
+                size = stat(filename)[6]
+            except :
+                self.ReturnNotFound()
+                return
         try :
             file = open(filename, 'rb')
         except :
