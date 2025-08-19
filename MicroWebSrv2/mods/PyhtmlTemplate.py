@@ -61,7 +61,7 @@ class PyhtmlTemplate :
 
         try :
             self._pyGlobalVars['Request'] = request
-            codeTemplate = CodeTemplate(code, microWebSrv2.HTMLEscape)
+            codeTemplate = CodeTemplate(code, microWebSrv2.HTMLEscape, microWebSrv2.RootPath)
             content      = codeTemplate.Execute(self._pyGlobalVars, None)
             request.Response.ReturnOk(content)
 
@@ -127,12 +127,13 @@ class CodeTemplate :
     INSTRUCTION_ELSE        = 'else'
     INSTRUCTION_FOR         = 'for'
     INSTRUCTION_END         = 'end'
+    INSTRUCTION_INCLUDE     = 'include'
 
     RE_IDENTIFIER           = re.compile(r'[a-zA-Z_][a-zA-Z0-9_]*$')
 
     # ------------------------------------------------------------------------
 
-    def __init__(self, code, escapeStrFunc=None) :
+    def __init__(self, code, escapeStrFunc=None, www_root="") :
         self._code          = code
         self._escapeStrFunc = escapeStrFunc
         self._pos           = 0
@@ -141,13 +142,15 @@ class CodeTemplate :
         self._pyGlobalVars  = { }
         self._pyLocalVars   = { }
         self._rendered      = ''
-        self._instructions  = {
-            CodeTemplate.INSTRUCTION_PYTHON : self._processInstructionPYTHON,
-            CodeTemplate.INSTRUCTION_IF     : self._processInstructionIF,
-            CodeTemplate.INSTRUCTION_ELIF   : self._processInstructionELIF,
-            CodeTemplate.INSTRUCTION_ELSE   : self._processInstructionELSE,
-            CodeTemplate.INSTRUCTION_FOR    : self._processInstructionFOR,
-            CodeTemplate.INSTRUCTION_END    : self._processInstructionEND
+        self._www_root      = www_root
+        self._instructions = {
+            CodeTemplate.INSTRUCTION_PYTHON: self._processInstructionPYTHON,
+            CodeTemplate.INSTRUCTION_IF: self._processInstructionIF,
+            CodeTemplate.INSTRUCTION_ELIF: self._processInstructionELIF,
+            CodeTemplate.INSTRUCTION_ELSE: self._processInstructionELSE,
+            CodeTemplate.INSTRUCTION_FOR: self._processInstructionFOR,
+            CodeTemplate.INSTRUCTION_END: self._processInstructionEND,
+            CodeTemplate.INSTRUCTION_INCLUDE: self._processInstructionINCLUDE
         }
 
     # ------------------------------------------------------------------------
@@ -262,7 +265,7 @@ class CodeTemplate :
                                          % (tokenContent, self._line) )
         if execute :
             lines  = pyCode.split('\n')
-            indent = '' 
+            indent = ''
             for line in lines :
                 if len(line.strip()) > 0 :
                     for c in line :
@@ -388,6 +391,24 @@ class CodeTemplate :
             raise CodeTemplateException( 'Instruction "%s" is invalid (line %s)'
                                          % (CodeTemplate.INSTRUCTION_END, self._line) )
         return CodeTemplate.INSTRUCTION_END
+
+
+    # ------------------------------------------------------------------------
+
+    def _processInstructionINCLUDE(self, instructionBody, execute) :
+        if not instructionBody :
+            raise CodeTemplateException( '"%s" alone is an incomplete syntax (line %s)'
+                                        % (CodeTemplate.INSTRUCTION_INCLUDE, self._line) )
+        filename = instructionBody.replace('"', '').replace("'", '').strip()
+        try:
+            with open("{}/{}".format(self._www_root, filename), 'r') as file :
+                includeCode = file.read()
+
+                self._code = self._code[:self._pos] + includeCode + self._code[self._pos:]
+                self._endPos += len(includeCode)
+        except Exception as ex:
+            print("Caught exception {}....".format(ex))
+        return None
 
 # ============================================================================
 # ============================================================================
