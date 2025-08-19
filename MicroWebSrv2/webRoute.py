@@ -54,7 +54,7 @@ def RegisterRoute(handler, method, routePath, name=None) :
                     if not argName :
                         raise Exception
                     argNames.append(argName)
-                    regex += '/([\\w.]*)'
+                    regex += '/([A-Za-z0-9_.]*)'
                 else :
                     regex += '/' + part
         regex = re.compile(regex + '$')
