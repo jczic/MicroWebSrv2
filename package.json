@@ -1,0 +1,17 @@
+{
+  "urls": [
+    ["MicroWebSrv2/__init__.py", "github:jczic/MicroWebSrv2/MicroWebSrv2/__init__.py"],
+    ["MicroWebSrv2/httpRequest.py", "github:jczic/MicroWebSrv2/MicroWebSrv2/httpRequest.py"],
+    ["MicroWebSrv2/httpResponse.py", "github:jczic/MicroWebSrv2/MicroWebSrv2/httpResponse.py"],
+    ["MicroWebSrv2/microWebSrv2.py", "github:jczic/MicroWebSrv2/MicroWebSrv2/microWebSrv2.py"],
+    ["MicroWebSrv2/webRoute.py", "github:jczic/MicroWebSrv2/MicroWebSrv2/webRoute.py"],
+    ["MicroWebSrv2/libs/__init__.py", "github:jczic/MicroWebSrv2/MicroWebSrv2/libs/__init__.py"],
+    ["MicroWebSrv2/libs/XAsyncSockets.py", "github:jczic/MicroWebSrv2/MicroWebSrv2/libs/XAsyncSockets.py"],
+    ["MicroWebSrv2/libs/urlUtils.py", "github:jczic/MicroWebSrv2/MicroWebSrv2/libs/urlUtils.py"],
+    ["MicroWebSrv2/mods/__init__.py", "github:jczic/MicroWebSrv2/MicroWebSrv2/mods/__init__.py"],
+    ["MicroWebSrv2/mods/PyhtmlTemplate.py", "github:jczic/MicroWebSrv2/MicroWebSrv2/mods/PyhtmlTemplate.py"],
+    ["MicroWebSrv2/mods/WebSockets.py", "github:jczic/MicroWebSrv2/MicroWebSrv2/mods/WebSockets.py"]
+  ],
+  "version": "1.0.0",
+  "deps": []
+}
